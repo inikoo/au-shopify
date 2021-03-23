@@ -16,7 +16,8 @@
         "laravel/sanctum": "^2.9",
         "laravel/tinker": "^2.5",
         "osiset/laravel-shopify": "^16.0",
-        "sentry/sentry-laravel": "^2.4"
+        "sentry/sentry-laravel": "^2.4",
+        "spatie/laravel-sluggable": "^2.6"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
