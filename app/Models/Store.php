@@ -21,6 +21,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property integer $foreign_store_id
  * @property string  $name
  * @property string  $url
+ * @property string  $slug
  *
  * @property array   $data
  */

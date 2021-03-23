@@ -7,7 +7,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Store;
+use App\Models\StoreEngine;
 use Illuminate\Console\Command;
 
 class CreateStore extends Command {
@@ -16,7 +16,7 @@ class CreateStore extends Command {
      *
      * @var string
      */
-    protected $signature = 'add:store {foreign_store_id} {name} {code} {database} {subdomain}';
+    protected $signature = 'add:store {store_engine} {foreign_store_id} {name} {url}';
 
     /**
      * The console command description.
@@ -40,20 +40,22 @@ class CreateStore extends Command {
      * @return int
      */
     public function handle(): int {
-        $store       = new Store;
-        $store->foreign_store_id = $this->argument('foreign_store_id');
-        $store->name = $this->argument('name');
-        $store->url  = $this->argument('url');
 
-        $store->data = [
-            'subdomain' => $this->argument('subdomain'),
-            'code'      => $this->argument('code'),
-            'database'  => $this->argument('database'),
-        ];
+        $storeEngine = StoreEngine::firstWhere('slug', $this->argument('store_engine'));
 
-        $store->save();
+        /**
+         * @var $store \App\Models\Store
+         */
+        $store = $storeEngine->stores()->updateOrCreate(
+            [
+                'foreign_store_id' => $this->argument('foreign_store_id'),
+            ], [
+                'name' => $this->argument('name'),
+                'url'  => $this->argument('url')
+            ]
+        );
 
-        print $store->name."\t".$store->createAccessCode()."\n";
+        print $store->slug."\t".$store->createAccessCode()."\n";
 
 
         return 0;

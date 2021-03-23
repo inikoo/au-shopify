@@ -5,27 +5,19 @@
  * Copyright (c) 2021. Aiku.io
  */
 
-namespace App\Models;
+namespace App\Models\Engines;
 
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Store
+ * Class AuroraStoreEngine
  *
  * @property integer $id
- * @property integer $foreign_store_id
- * @property string  $name
- * @property string  $url
- *
+ * @property string  $slug*
  * @property array   $data
+ * @method static firstOrCreate(string[] $array)
  */
-class Store extends Authenticatable {
-    use HasApiTokens, HasFactory, Notifiable, HasSlug;
+class AuroraStoreEngine extends Model {
 
     protected $casts = [
         'data' => 'array',
@@ -35,16 +27,8 @@ class Store extends Authenticatable {
         'data' => '{}',
     ];
 
-    public function getSlugOptions(): SlugOptions {
-        return SlugOptions::create()->generateSlugsFrom('name')->saveSlugsTo('slug');
-    }
-
-
     protected $guarded = [];
 
-    public function createAccessCode(): string {
 
-        return $this->createToken('DirectLink')->plainTextToken;
-    }
 
 }

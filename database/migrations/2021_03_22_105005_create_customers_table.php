@@ -44,5 +44,7 @@ class CreateCustomersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('access_codes');
+        Schema::dropIfExists('customers');
+
     }
 }

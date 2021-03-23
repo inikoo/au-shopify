@@ -7,16 +7,23 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Store;
+use App\Models\Engines\AuroraStoreEngine;
+use App\Models\StoreEngine;
+
 use Illuminate\Console\Command;
 
+/**
+ * Class CreateStoreEngines
+ *
+ * @package App\Console\Commands
+ */
 class CreateStoreEngines extends Command {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'create:store_engines';
+    protected $signature = 'create:store_engine {engine_type} {name} {code} {database} {subdomain}';
 
     /**
      * The console command description.
@@ -40,20 +47,38 @@ class CreateStoreEngines extends Command {
      * @return int
      */
     public function handle(): int {
-        $store       = new Store;
-        $store->foreign_store_id = $this->argument('foreign_store_id');
-        $store->name = $this->argument('name');
-        $store->url  = $this->argument('url');
 
-        $store->data = [
-            'subdomain' => $this->argument('subdomain'),
-            'code'      => $this->argument('code'),
-            'database'  => $this->argument('database'),
-        ];
 
-        $store->save();
+        switch ($this->argument('engine_type')) {
+            case 'au':
+                $storeEngineType = AuroraStoreEngine::firstOrCreate(
+                    [
+                        'slug' => 'v3'
+                    ]
+                );
+                break;
+            default:
+                print 'Error '.$this->argument('engine_type').' not set up';
+                exit;
 
-        print $store->name."\t".$store->createAccessCode()."\n";
+        }
+
+
+        $storeEngine = StoreEngine::firstOrCreate(
+            [
+                'slug' => $this->argument('subdomain'),
+                'name' => $this->argument('name'),
+
+            ],
+            [
+                'data' => [
+                    'subdomain' => $this->argument('subdomain'),
+                    'code'      => $this->argument('code'),
+                    'database'  => $this->argument('database'),
+                ]
+            ]
+        );
+        $storeEngine->engine()->associate($storeEngineType)->save();
 
 
         return 0;

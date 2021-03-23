@@ -52,7 +52,6 @@ class CreateStoresTable extends Migration {
 
             $table->foreignId('store_engine_id')->constrained();
 
-            $table->json('credentials');
             $table->json('data');
 
 
@@ -72,5 +71,7 @@ class CreateStoresTable extends Migration {
         Schema::dropIfExists('stores');
         Schema::dropIfExists('store_engines');
         Schema::dropIfExists('aurora_store_engines');
+
+
     }
 }
