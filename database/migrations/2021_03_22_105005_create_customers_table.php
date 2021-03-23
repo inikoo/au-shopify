@@ -16,6 +16,7 @@ class CreateCustomersTable extends Migration
 
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->foreignId('store_id')->constrained();
             $table->foreignId('user_id')->nullable()->index();
             $table->unsignedMediumInteger('foreign_id')->index();
@@ -27,10 +28,8 @@ class CreateCustomersTable extends Migration
 
         Schema::create('access_codes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('store_id')->constrained();
-            $table->foreignId('customer_id')->index();
-            $table->string('access_code')->nullable()->index();
-            $table->json('data');
+            $table->foreignId('customer_id')->constrained();
+            $table->string('access_code')->unique()->index();
             $table->timestampsTz();
             $table->softDeletesTz();
         });

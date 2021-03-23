@@ -7,6 +7,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,5 +48,10 @@ class Store extends Authenticatable {
 
         return $this->createToken('DirectLink')->plainTextToken;
     }
+
+    public function customers(): HasMany {
+        return $this->hasMany('App\Models\Customer');
+    }
+
 
 }
