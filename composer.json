@@ -17,7 +17,8 @@
         "laravel/tinker": "^2.5",
         "osiset/laravel-shopify": "^16.0",
         "sentry/sentry-laravel": "^2.4",
-        "spatie/laravel-sluggable": "^2.6"
+        "spatie/laravel-sluggable": "^2.6",
+      "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.9",

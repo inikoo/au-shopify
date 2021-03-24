@@ -32,6 +32,8 @@ class CreateStoresTable extends Migration {
             $table->id();
             $table->string('slug')->unique();
             $table->string('name');
+            $table->string('url');
+            $table->unsignedMediumInteger('foreign_id')->index();
 
             $table->unsignedSmallInteger('store_engine_id')->index()->nullable();
             $table->string('store_engine_type')->index()->nullable();
@@ -48,7 +50,7 @@ class CreateStoresTable extends Migration {
             $table->string('name');
             $table->string('url');
 
-            $table->unsignedMediumInteger('foreign_store_id')->index();
+            $table->unsignedMediumInteger('foreign_id')->index();
 
             $table->foreignId('store_engine_id')->constrained();
 

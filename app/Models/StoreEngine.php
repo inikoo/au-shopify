@@ -10,16 +10,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Arr;
+use stdClass;
 
 
 /**
  * Class StoreEngine
  *
- * @property integer $id
- * @property array   $data
+ * @property integer                               $id
+ * @property array                                 $data
+ * @property \App\Models\Engines\AuroraStoreEngine engine
  * @mixin \Eloquent
  */
 class StoreEngine extends Model {
+
+    protected $table = 'store_engines';
 
     protected $casts = [
         'data' => 'array',
@@ -37,6 +42,30 @@ class StoreEngine extends Model {
 
     public function stores(): HasMany {
         return $this->hasMany('App\Models\Store');
+    }
+
+    public function synchronizeProducts($store) {
+        $this->engine->synchronizeProducts($this, $store);
+    }
+
+    public function synchronizeStore($foreignStoreId) {
+        return $this->engine->synchronizeStore($this, $foreignStoreId);
+    }
+
+    public function registerCustomer($store,$customerData): stdClass {
+        $this->setDatabase();
+        return $this->engine->registerCustomer($store,$customerData);
+    }
+
+    public function setDatabase() {
+
+        $this->engine->setDatabase(Arr::get($this->data, 'database'));
+
+    }
+
+    public function saveStoreEngineToken($token, $storeId) {
+        $this->setDatabase();
+        $this->engine->saveStoreEngineToken($token,$storeId);
     }
 
 

@@ -8,7 +8,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Engines\AuroraStoreEngine;
-use App\Models\StoreEngine;
 
 use Illuminate\Console\Command;
 
@@ -23,7 +22,7 @@ class CreateStoreEngines extends Command {
      *
      * @var string
      */
-    protected $signature = 'create:store_engine {engine_type} {name} {code} {database} {subdomain}';
+    protected $signature = 'create:store_engine {engine_type} {arg1}';
 
     /**
      * The console command description.
@@ -56,6 +55,17 @@ class CreateStoreEngines extends Command {
                         'slug' => 'v3'
                     ]
                 );
+
+                $storeEngineType->setDatabase($this->argument('arg1'));
+
+                $storeEngine = $storeEngineType->synchronizeStoreEngine(
+                    [
+                        'id'       => 1,
+                        'database' => $this->argument('arg1'),
+                        'code' => $this->argument('arg1')
+                    ]
+                );
+
                 break;
             default:
                 print 'Error '.$this->argument('engine_type').' not set up';
@@ -64,20 +74,6 @@ class CreateStoreEngines extends Command {
         }
 
 
-        $storeEngine = StoreEngine::firstOrCreate(
-            [
-                'slug' => $this->argument('subdomain'),
-                'name' => $this->argument('name'),
-
-            ],
-            [
-                'data' => [
-                    'subdomain' => $this->argument('subdomain'),
-                    'code'      => $this->argument('code'),
-                    'database'  => $this->argument('database'),
-                ]
-            ]
-        );
         $storeEngine->engine()->associate($storeEngineType)->save();
 
 

@@ -16,7 +16,7 @@ class CreateStore extends Command {
      *
      * @var string
      */
-    protected $signature = 'add:store {store_engine} {foreign_store_id} {name} {url}';
+    protected $signature = 'add:store {store_engine} {foreign_id}';
 
     /**
      * The console command description.
@@ -46,16 +46,9 @@ class CreateStore extends Command {
         /**
          * @var $store \App\Models\Store
          */
-        $store = $storeEngine->stores()->updateOrCreate(
-            [
-                'foreign_store_id' => $this->argument('foreign_store_id'),
-            ], [
-                'name' => $this->argument('name'),
-                'url'  => $this->argument('url')
-            ]
-        );
-
-        print $store->slug."\t".$store->createAccessCode()."\n";
+        $store = $storeEngine->synchronizeStore($this->argument('foreign_id'));
+        $store->saveStoreEngineToken();
+        $store->synchronizeProducts();
 
 
         return 0;

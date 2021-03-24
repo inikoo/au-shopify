@@ -19,32 +19,31 @@ class AppRegisterController extends Controller {
         $request->validate(
             [
                 'id'   => 'required',
-                'name' => 'required',
+                'data' => 'required|json',
             ]
         );
 
-        $customer = $request->user()->customers()->firstorCreate(
-            [
-                'foreign_id' => $request->get('id')
-            ], [
-                'name' => $request->get('name')
-            ]
-        );
+        $store = $request->user();
 
-        $accessCode = $customer->accessCodes()->create(
-            [
+        $result = $store->registerCustomer($request);
 
-            ]
-        );
+        if ($result->success) {
+            return response()->json(
+                [
+                    'success'     => true,
+                    'customer_id' => $result->customer->id,
+                    'store_id'    => $result->customer->store->slug,
+                    'accessCode'  => $result->accessCode
+                ]
+            );
+        } else {
+            return response()->json(
+                [
+                    'success' => false,
 
-
-        return response()->json(
-            [
-                'customer_id' => $customer->id,
-                'store_id'    => $customer->store->slug,
-                'accessCode'  => $accessCode->access_code
-            ]
-        );
+                ]
+            );
+        }
 
 
     }
