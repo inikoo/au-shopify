@@ -7,7 +7,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Engines\AuroraStoreEngine;
+use App\Models\Engines\Aurora;
 
 use Illuminate\Console\Command;
 
@@ -50,7 +50,7 @@ class CreateStoreEngines extends Command {
 
         switch ($this->argument('engine_type')) {
             case 'au':
-                $storeEngineType = AuroraStoreEngine::firstOrCreate(
+                $storeEngineType = Aurora::firstOrCreate(
                     [
                         'slug' => 'v3'
                     ]

@@ -1,22 +1,22 @@
 <?php
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Tue, 16 Mar 2021 15:18:24 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 25 Mar 2021 15:12:32 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2021. Aiku.io
  */
 
 namespace App\Console\Commands;
 
-use App\Models\StoreEngine;
+use App\Models\Store;
 use Illuminate\Console\Command;
 
-class CreateStore extends Command {
+class SynchronizeStores extends Command {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'add:store {store_engine} {foreign_id}';
+    protected $signature = 'sync:stores {storeID}';
 
     /**
      * The console command description.
@@ -41,16 +41,23 @@ class CreateStore extends Command {
      */
     public function handle(): int {
 
-        $storeEngine = StoreEngine::firstWhere('slug', $this->argument('store_engine'));
-        $storeEngine->setDatabase();
+
+        if ($this->argument('storeID')=='all') {
+            $stores = Store::all();
+        } else {
+
+            $stores = Store::where('id', $this->argument('storeID'))->get();
+        }
+
+        foreach ($stores as $store) {
+
+            print $store->slug."\n";
+            $store->storeEngine->setDatabase();
 
 
-        /**
-         * @var $store \App\Models\Store
-         */
-        $store = $storeEngine->synchronizeStore($this->argument('foreign_id'));
-        $store->saveStoreEngineToken();
-        $store->synchronizeProducts();
+            $store->synchronizeProducts($bar=$this->output);
+
+        }
 
 
         return 0;

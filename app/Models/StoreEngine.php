@@ -17,9 +17,9 @@ use stdClass;
 /**
  * Class StoreEngine
  *
- * @property integer                               $id
- * @property array                                 $data
- * @property \App\Models\Engines\AuroraStoreEngine engine
+ * @property integer                    $id
+ * @property array                      $data
+ * @property \App\Models\Engines\Aurora engine
  * @mixin \Eloquent
  */
 class StoreEngine extends Model {
@@ -44,8 +44,8 @@ class StoreEngine extends Model {
         return $this->hasMany('App\Models\Store');
     }
 
-    public function synchronizeProducts($store) {
-        $this->engine->synchronizeProducts($this, $store);
+    public function synchronizeProducts($store,$bar) {
+        $this->engine->synchronizeProducts($store,$bar);
     }
 
     public function synchronizeStore($foreignStoreId) {

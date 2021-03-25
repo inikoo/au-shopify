@@ -28,6 +28,7 @@ use stdClass;
  *
  * @property array   $data
  * @property \App\Models\StoreEngine   storeEngine
+ * @method static where(string $string, array|string|null $argument)
  */
 class Store extends Authenticatable {
     use HasApiTokens, HasFactory, Notifiable, HasSlug;
@@ -69,8 +70,8 @@ class Store extends Authenticatable {
         return $this->belongsTo(StoreEngine::class);
     }
 
-    public function synchronizeProducts() {
-        $this->storeEngine->synchronizeProducts($this);
+    public function synchronizeProducts($bar=false) {
+        $this->storeEngine->synchronizeProducts($this,$bar);
     }
 
     public function registerCustomer($data): stdClass {

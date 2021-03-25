@@ -19,7 +19,7 @@ class CreateStoresTable extends Migration {
     public function up() {
 
         Schema::create(
-            'aurora_store_engines', function (Blueprint $table) {
+            'aurora_engines', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
             $table->json('data');
@@ -72,7 +72,7 @@ class CreateStoresTable extends Migration {
     public function down() {
         Schema::dropIfExists('stores');
         Schema::dropIfExists('store_engines');
-        Schema::dropIfExists('aurora_store_engines');
+        Schema::dropIfExists('aurora_engines');
 
 
     }
