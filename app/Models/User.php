@@ -8,6 +8,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
@@ -16,9 +17,10 @@ use Osiset\ShopifyApp\Traits\ShopModel;
 /**
  * Class User
  *
- * @property integer $id
- * @property integer $customer_id
- * @property string  $name
+ * @property integer              $id
+ * @property integer              $customer_id
+ * @property string               $name
+ * @property \App\Models\Customer $customer
  * @package App\Models
  */
 class User extends Authenticatable implements IShopModel {
@@ -55,6 +57,10 @@ class User extends Authenticatable implements IShopModel {
         'email_verified_at' => 'datetime',
     ];
 
+    public function customer(): BelongsTo {
+        return $this->belongsTo(Customer::class);
+    }
+
     function verifyCustomer($request): object {
 
         $result = (object)[
@@ -70,9 +76,11 @@ class User extends Authenticatable implements IShopModel {
                 $result->reason = 'expired-access-code';
             } else {
 
-                $this->customer_id=$accessCode->customer_id;
+                $this->customer_id = $accessCode->customer_id;
                 $this->save();
-                $accessCode->forceDelete();
+
+                $this->customer->accessCodes()->forceDelete();
+
 
                 $result->success = true;
                 $result->reason  = 'verified';
