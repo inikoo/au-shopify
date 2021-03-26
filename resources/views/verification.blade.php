@@ -4,11 +4,11 @@
     <div class="bg-white">
         <div class="max-w-7xl  py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
             <h2 class="pb-4 inline text-3xl font-extrabold tracking-tight text-gray-900 sm:block sm:text-4xl">
-                Hello 👋 <span class="italic pl-3">{{ Auth::user()->name }}</span>
+                {{__('Hello')}} 👋 <span class="italic pl-3">{{ Auth::user()->name }}</span>
             </h2>
-            <p class="inline text-2xl font-extrabold tracking-tight text-indigo-600 sm:block sm:text-3xl">We need the code given in your supplier website</p>
+            <p class="inline text-2xl font-extrabold tracking-tight text-indigo-600 sm:block sm:text-3xl">{{__('We need the code given in your supplier website')}}</p>
             <form class="mt-8 sm:flex">
-                <label for="accessCode" class="sr-only">Access code</label>
+                <label for="accessCode" class="sr-only">{{__('Access code')}}</label>
                 <input id="accessCode" name="accessCode" type="text" required class="w-full px-5 py-3 placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs border-gray-300 rounded-md"
                        placeholder="Access code">
                 <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3 sm:flex-shrink-0">
@@ -28,10 +28,10 @@
                     </div>
                     <div class="ml-3">
                         <h3 class="server-error hidden  text-sm font-medium text-red-800">
-                            An error in our side has occurred 😭, we are working to fix it!
+                            {{__('An error in our side has occurred 😭, we are working to fix it!')}}
                         </h3>
                         <h3 class="invalid-access-code hidden text-sm font-medium text-red-800">
-                            The access code is invalid
+                            {{__('The access code is invalid')}}
                         </h3>
 
                     </div>
@@ -44,12 +44,12 @@
 @section('scripts')
     @parent
     <!--suppress CheckEmptyScriptTag -->
-    <x-breadcrumbs title="Verification"/>
+    <x-breadcrumbs title="{{__('Verification')}}"/>
     <script type="text/javascript">
         $(document).ready(function () {
             $("form").submit(function (event) {
 
-                const submitButton=$("form button");
+                const submitButton = $("form button");
                 submitButton.find('.action-label').addClass('hidden')
                 submitButton.find('.processing').removeClass('hidden')
 
