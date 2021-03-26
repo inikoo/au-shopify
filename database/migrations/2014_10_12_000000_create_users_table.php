@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Fri, 26 Mar 2021 14:22:49 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2021. Aiku.io
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,7 +25,8 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

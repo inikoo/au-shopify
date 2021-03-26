@@ -1,7 +1,11 @@
 <?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Fri, 26 Mar 2021 14:15:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2021. Aiku.io
+ */
 
 namespace App\Models;
-
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,9 +13,15 @@ use Illuminate\Notifications\Notifiable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
 use Osiset\ShopifyApp\Traits\ShopModel;
 
-class User extends Authenticatable implements IShopModel
-
-{
+/**
+ * Class User
+ *
+ * @property integer $id
+ * @property integer $customer_id
+ * @property string  $name
+ * @package App\Models
+ */
+class User extends Authenticatable implements IShopModel {
     use HasFactory, Notifiable;
     use ShopModel;
 
@@ -44,4 +54,33 @@ class User extends Authenticatable implements IShopModel
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    function verifyCustomer($request): object {
+
+        $result = (object)[
+            'success' => false,
+            'reason'  => 'server-error'
+        ];
+
+        $accessCode = AccessCode::withTrashed()->firstWhere('access_code', $request->get('accessCode'));
+
+
+        if ($accessCode) {
+            if ($accessCode->trashed()) {
+                $result->reason = 'expired-access-code';
+            } else {
+
+                $this->customer_id=$accessCode->customer_id;
+                $this->save();
+                $accessCode->forceDelete();
+
+                $result->success = true;
+                $result->reason  = 'verified';
+            }
+        } else {
+            $result->reason = 'invalid-access-code';
+        }
+
+        return $result;
+    }
 }

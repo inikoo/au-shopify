@@ -18,13 +18,18 @@ class CreateCustomersTable extends Migration
             $table->id();
             $table->string('slug')->unique();
             $table->foreignId('store_id')->constrained();
-            $table->foreignId('user_id')->nullable()->index();
             $table->unsignedMediumInteger('foreign_id')->index();
             $table->string('name')->index();
             $table->json('data');
             $table->timestampsTz();
             $table->softDeletesTz();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('customer_id')->after('id')->nullable()->constrained();
+        });
+
+
 
         Schema::create('access_codes', function (Blueprint $table) {
             $table->id();
@@ -43,6 +48,9 @@ class CreateCustomersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('access_codes');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('customer_id');
+        });
         Schema::dropIfExists('customers');
 
     }

@@ -50,8 +50,6 @@ class CreateStore extends Command {
          */
         $store = $storeEngine->synchronizeStore($this->argument('foreign_id'));
         $store->saveStoreEngineToken();
-        $store->synchronizeProducts();
-
 
         return 0;
     }

@@ -15,7 +15,6 @@ class AppRegisterController extends Controller {
 
     function registerCustomer(Request $request): JsonResponse {
 
-
         $request->validate(
             [
                 'id'   => 'required',
@@ -23,8 +22,7 @@ class AppRegisterController extends Controller {
             ]
         );
 
-        $store = $request->user();
-
+        $store  = $request->user();
         $result = $store->registerCustomer($request);
 
         if ($result->success) {
@@ -40,12 +38,31 @@ class AppRegisterController extends Controller {
             return response()->json(
                 [
                     'success' => false,
-
                 ]
             );
         }
+    }
 
 
+    function verifyCustomer(Request $request): JsonResponse {
+
+        $request->validate(
+            [
+                'accessCode' => 'required',
+            ]
+        );
+
+        /**
+         * @var $user \App\Models\User
+         */
+        $user=$request->user();
+
+        return response()->json(
+
+
+                $user->verifyCustomer($request)
+
+        );
     }
 
 }
