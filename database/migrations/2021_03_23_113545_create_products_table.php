@@ -25,9 +25,14 @@ class CreateProductsTable extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedMediumInteger('legacy_id')->nullable()->index();
-            $table->unsignedMediumInteger('tenant_id');
-
+            $table->unsignedInteger('foreign_id')->nullable()->index();
+            $table->foreignId('store_id')->constrained();
+            $table->unique(
+                [
+                    'foreign_id',
+                    'store_id',
+                ]
+            );
         }
         );
 

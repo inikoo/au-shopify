@@ -11,15 +11,18 @@ use Illuminate\Support\Facades\DB;
 
 trait ProductOps {
 
-    public function synchronizeProducts($store, $showBar) {
+    public function synchronizeProducts() {
 
-        if ($showBar) {
+        $store=$this->owners['store'];
+        $bar=false;
+
+        if ($this->showBar) {
             $sql = "count(*) as num from `Product Dimension` where `Product Store Key`=?";
 
             $count_products_data = DB::connection('aurora')->select("select $sql ", [$store->foreign_id])[0];
 
 
-            $bar = $showBar->createProgressBar($count_products_data->num);
+            $bar = $this->showBar->createProgressBar($count_products_data->num);
             $bar->setFormat('debug');
         }
 
@@ -80,9 +83,13 @@ trait ProductOps {
                       ]
 
             );
-            if ($showBar) {
+
+            $this->synchronizeProductImages($product);
+
+            if ($bar) {
                 $bar->advance();
             }
+
 
 
             $sql = "`Product Dimension` set `Product Shopify Key`=? where `Product ID`=?";
@@ -96,21 +103,42 @@ trait ProductOps {
 
         }
 
-        if ($showBar) {
+        if ($bar) {
             $bar->finish();
             print "\n";
         }
 
     }
 
+
     private function createProduct($store, $foreignID, $data) {
-
-
         return $store->products()->updateOrCreate(
             [
                 'foreign_id' => $foreignID,
             ], $data
         );
+    }
+
+    private function synchronizeProductImages($product){
+
+
+        $imagesModelData = $this->getAuroraImagesData(
+            [
+                'object'     => 'Product',
+                'object_key' => $product->foreign_id,
+
+            ]
+        );
+
+
+        $this->syncImages($product,$imagesModelData, function ($_scope){
+            $scope = 'marketing';
+            if ($_scope== '') {
+                $scope = 'marketing';
+            }
+            return $scope;
+        });
+
 
 
     }

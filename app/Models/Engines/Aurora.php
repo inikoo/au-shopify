@@ -11,11 +11,14 @@ use App\Traits\Aurora\CustomerOps;
 
 
 use App\Models\StoreEngine;
+use App\Traits\Aurora\ImageOps;
 use App\Traits\Aurora\ProductOps;
 use App\Traits\Aurora\StoreOps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Class Aurora
@@ -23,10 +26,11 @@ use Illuminate\Support\Facades\DB;
  * @property integer $id
  * @property string  $slug
  * @property array   $data
+ * @property array $owners
  * @method static firstOrCreate(string[] $array)
  */
 class Aurora extends Model {
-    use StoreOps, ProductOps, CustomerOps;
+    use StoreOps, ProductOps, CustomerOps, ImageOps;
 
     protected $table = 'aurora_engines';
 
@@ -38,8 +42,11 @@ class Aurora extends Model {
         'data' => '{}',
     ];
 
+    public $showBar = false;
+
     protected $guarded = [];
 
+    public $owners = [];
 
     public function setDatabase($database) {
 
@@ -92,5 +99,26 @@ class Aurora extends Model {
 
     }
 
+
+    function fillAuroraData($fields, $legacy_data, $modifier = false): array {
+
+        $data = [];
+        foreach ($fields as $key => $legacy_key) {
+            if (!empty($legacy_data->{$legacy_key})) {
+                if ($modifier == 'strtolower') {
+                    $value = strtolower($legacy_data->{$legacy_key});
+                } elseif ($modifier == 'snake') {
+                    $value = Str::snake($legacy_data->{$legacy_key});
+                } elseif ($modifier == 'jsonDecode') {
+                    $value = json_decode($legacy_data->{$legacy_key}, true);
+                } else {
+                    $value = $legacy_data->{$legacy_key};
+                }
+                Arr::set($data, $key, $value);
+            }
+        }
+        return $data;
+
+    }
 
 }

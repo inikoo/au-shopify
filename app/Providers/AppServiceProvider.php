@@ -23,7 +23,9 @@ class AppServiceProvider extends ServiceProvider {
     public function boot() {
         Relation::morphMap(
             [
-                'Aurora' => 'App\Models\Engines\Aurora',
+                'Aurora'  => 'App\Models\Engines\Aurora',
+                'Product' => 'App\Models\Product',
+                'Store'   => 'App\Models\Store',
 
             ]
         );

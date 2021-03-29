@@ -44,28 +44,33 @@ class StoreEngine extends Model {
         return $this->hasMany('App\Models\Store');
     }
 
-    public function synchronizeProducts($store,$bar) {
-        $this->engine->synchronizeProducts($store,$bar);
+    public function synchronizeProducts($store, $bar) {
+        $this->engine->owners = [
+            'storeEngine' => $this,
+            'store'=>$store
+        ];
+        $this->engine->showBar=$bar;
+
+        $this->engine->synchronizeProducts();
     }
 
     public function synchronizeStore($foreignStoreId) {
         return $this->engine->synchronizeStore($this, $foreignStoreId);
     }
 
-    public function registerCustomer($store,$customerData): stdClass {
+    public function registerCustomer($store, $customerData): stdClass {
         $this->setDatabase();
-        return $this->engine->registerCustomer($store,$customerData);
+
+        return $this->engine->registerCustomer($store, $customerData);
     }
 
     public function setDatabase() {
-
         $this->engine->setDatabase(Arr::get($this->data, 'database'));
-
     }
 
     public function saveStoreEngineToken($token, $storeId) {
         $this->setDatabase();
-        $this->engine->saveStoreEngineToken($token,$storeId);
+        $this->engine->saveStoreEngineToken($token, $storeId);
     }
 
 

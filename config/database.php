@@ -100,6 +100,21 @@ return [
             'schema'         => 'public',
             'sslmode'        => 'prefer',
         ],
+        'master' => [
+            'driver'         => env('MASTER_DB_DRIVER', 'pgsql'),
+            'url'            => env('DATABASE_URL'),
+            'host'           => env('MASTER_DB_HOST', '127.0.0.1'),
+            'port'           => env('MASTER_DB_PORT', '5432'),
+            'database'       => env('MASTER_DB_DATABASE', 'master'),
+            'username'       => env('MASTER_DB_USERNAME', 'master'),
+            'password'       => env('MASTER_DB_PASSWORD', ''),
+            'charset'        => 'utf8',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'schema'         => 'public',
+            'sslmode'        => 'prefer',
+        ],
+
 
         'sqlsrv' => [
             'driver'         => 'sqlsrv',

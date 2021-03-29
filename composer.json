@@ -18,7 +18,9 @@
         "osiset/laravel-shopify": "^16.0",
         "sentry/sentry-laravel": "^2.4",
         "spatie/laravel-sluggable": "^2.6",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+      "ext-pgsql": "*",
+        "ext-json": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.9",
