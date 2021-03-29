@@ -9,6 +9,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -17,6 +18,7 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * @property integer $id
  * @property mixed   store
+ * @mixin \Eloquent
  */
 class Product extends Model {
     use HasSlug;
@@ -50,5 +52,8 @@ class Product extends Model {
         return $this->morphMany('App\Models\Helpers\ImageModel', 'image_models', 'imageable_type', 'imageable_id');
     }
 
+    function customers(): BelongsToMany {
+        return $this->belongsToMany('App\Models\Customer', 'customer_product')->using('App\Models\Portfolio')->withTimestamps()->withPivot(['foreign_id']);
+    }
 
 }

@@ -1,29 +1,31 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Thu, 25 Mar 2021 15:12:32 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 29 Mar 2021 16:38:56 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2021. Aiku.io
  */
 
 namespace App\Console\Commands;
 
-use App\Models\Store;
+use App\Models\Customer;
 use Illuminate\Console\Command;
 
-class SynchronizeStores extends Command {
+
+class SynchronizePortfolios extends Command {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:stores {storeID}';
+    protected $signature = 'sync:portfolios {customerID}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Synchronize stores/products';
+    protected $description = 'Synchronize portfolios';
 
     /**
      * Create a new command instance.
@@ -42,20 +44,20 @@ class SynchronizeStores extends Command {
     public function handle(): int {
 
 
-        if ($this->argument('storeID')=='all') {
-            $stores = Store::all();
+        if ($this->argument('customerID') == 'all') {
+            $customers = Customer::all();
         } else {
 
-            $stores = Store::where('id', $this->argument('storeID'))->get();
+            $customers = Customer::where('id', $this->argument('customerID'))->get();
         }
 
-        foreach ($stores as $store) {
+        foreach ($customers as $customer) {
 
-            print $store->slug."\n";
-            $store->storeEngine->setDatabase();
+            print $customer->slug."\n";
+            $customer->store->storeEngine->setDatabase();
 
 
-            $store->synchronizeProducts($bar=$this->output);
+            $customer->synchronizePortfolio();
 
         }
 

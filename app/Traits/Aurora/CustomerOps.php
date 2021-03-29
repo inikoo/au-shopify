@@ -7,6 +7,8 @@
 
 namespace App\Traits\Aurora;
 
+use App\Models\Portfolio;
+use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 
@@ -79,6 +81,42 @@ trait CustomerOps {
         return $result;
 
 
+    }
+
+    function synchronizePortfolio($customer) {
+
+
+        $sql = "* from `Customer Portfolio Fact` where `Customer Portfolio Customer Key`=?";
+        foreach (DB::connection('aurora')->select("select $sql", [$customer->foreign_id]) as $auroraData) {
+            $product = (new Product)->firstWhere('foreign_id', $auroraData->{'Customer Portfolio Product ID'});
+
+            if ($product->id) {
+
+                $data=[];
+                if($auroraData->{'Customer Portfolio Reference'}!=''){
+                    $data=[
+                        'product_code'=> $auroraData->{'Customer Portfolio Reference'}
+                    ];
+                }
+
+
+
+
+
+                Portfolio::withTrashed()->updateOrCreate(
+                    [
+                        'foreign_id' => $auroraData->{'Customer Portfolio Key'},
+
+                    ], [
+                        'customer_id' => $customer->id,
+                        'product_id'  => $product->id,
+                        'data'        => $data,
+                        'created_at'  => $auroraData->{'Customer Portfolio Creation Date'},
+                        'deleted_at'  => (($auroraData->{'Customer Portfolio Customers State'} == 'Removed' and $auroraData->{'Customer Portfolio Removed Date'} != '') ? $auroraData->{'Customer Portfolio Removed Date'} : null),
+                    ]
+                );
+            }
+        }
     }
 
 

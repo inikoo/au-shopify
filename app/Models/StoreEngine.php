@@ -58,6 +58,10 @@ class StoreEngine extends Model {
         return $this->engine->synchronizeStore($this, $foreignStoreId);
     }
 
+    public function synchronizePortfolio($customer) {
+        $this->engine->synchronizePortfolio($customer);
+    }
+
     public function registerCustomer($store, $customerData): stdClass {
         $this->setDatabase();
 
