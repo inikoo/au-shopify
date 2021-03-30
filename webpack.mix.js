@@ -1,3 +1,10 @@
+
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Tue, 30 Mar 2021 17:34:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2021. Aiku.io
+ */
+
 const mix = require('laravel-mix');
 
 /*
@@ -12,6 +19,8 @@ const mix = require('laravel-mix');
  */
 
 mix.js('resources/js/app.js', 'public/js')
-    .postCss('resources/css/app.css', 'public/css', [
-        require("tailwindcss"),
-    ]);
+    .postCss('resources/css/app.css', 'public/css', [require("tailwindcss"),]);
+
+if (mix.inProduction()) {
+    mix.version();
+}

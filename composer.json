@@ -9,6 +9,9 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-pgsql": "*",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -17,10 +20,7 @@
         "laravel/tinker": "^2.5",
         "osiset/laravel-shopify": "^16.0",
         "sentry/sentry-laravel": "^2.4",
-        "spatie/laravel-sluggable": "^2.6",
-      "ext-pdo": "*",
-      "ext-pgsql": "*",
-        "ext-json": "*"
+        "spatie/laravel-sluggable": "^2.6"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.9",

@@ -58,6 +58,7 @@ class SynchronizePortfolios extends Command {
 
 
             $customer->synchronizePortfolio();
+            $customer->updateNumberPortfolioProducts();
 
         }
 

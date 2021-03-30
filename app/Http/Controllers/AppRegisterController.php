@@ -26,6 +26,10 @@ class AppRegisterController extends Controller {
         $result = $store->registerCustomer($request);
 
         if ($result->success) {
+
+            $result->customer->synchronizePortfolio();
+
+
             return response()->json(
                 [
                     'success'     => true,

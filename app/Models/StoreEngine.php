@@ -45,11 +45,11 @@ class StoreEngine extends Model {
     }
 
     public function synchronizeProducts($store, $bar) {
-        $this->engine->owners = [
+        $this->engine->owners  = [
             'storeEngine' => $this,
-            'store'=>$store
+            'store'       => $store
         ];
-        $this->engine->showBar=$bar;
+        $this->engine->showBar = $bar;
 
         $this->engine->synchronizeProducts();
     }

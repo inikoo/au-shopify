@@ -68,12 +68,9 @@ trait CustomerOps {
         $result = $this->synchronizeCustomer($store, $customerForeignData->get('id'));
 
         if ($result->success) {
-            $accessCode         = $result->customer->accessCodes()->create(
-                [
-
-                ]
-            );
+            $accessCode         = $result->customer->accessCodes()->create([]);
             $result->accessCode = $accessCode->access_code;
+
 
             return $result;
         }
@@ -92,15 +89,12 @@ trait CustomerOps {
 
             if ($product->id) {
 
-                $data=[];
-                if($auroraData->{'Customer Portfolio Reference'}!=''){
-                    $data=[
-                        'product_code'=> $auroraData->{'Customer Portfolio Reference'}
+                $data = [];
+                if ($auroraData->{'Customer Portfolio Reference'} != '') {
+                    $data = [
+                        'product_code' => $auroraData->{'Customer Portfolio Reference'}
                     ];
                 }
-
-
-
 
 
                 Portfolio::withTrashed()->updateOrCreate(

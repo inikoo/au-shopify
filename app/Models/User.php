@@ -20,18 +20,22 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property integer              $id
  * @property integer              $customer_id
  * @property string               $name
+ * @property array                $data
+ * @property array                $settings
  * @property \App\Models\Customer $customer
- * @package App\Models
+ * @mixin \Eloquent
  */
 class User extends Authenticatable implements IShopModel {
     use HasFactory, Notifiable;
     use ShopModel;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+
+    protected $attributes = [
+        'data'     => '{}',
+        'settings' => '{}',
+    ];
+
+
     protected $fillable = [
         'name',
         'email',
@@ -54,6 +58,8 @@ class User extends Authenticatable implements IShopModel {
      * @var array
      */
     protected $casts = [
+        'data'              => 'array',
+        'settings'          => 'array',
         'email_verified_at' => 'datetime',
     ];
 
@@ -80,7 +86,7 @@ class User extends Authenticatable implements IShopModel {
                 $this->save();
 
                 $this->customer->accessCodes()->forceDelete();
-
+                $this->customer->updateNumberUsers();
 
                 $result->success = true;
                 $result->reason  = 'verified';
@@ -91,4 +97,23 @@ class User extends Authenticatable implements IShopModel {
 
         return $result;
     }
+
+    /*
+    function updateStats() {
+    }
+    */
+
+    function synchronize() {
+        $request = $this->api()->rest('GET', '/admin/shop.json');
+
+        if (data_get($request, 'status') == 200) {
+
+            $data       = $this->data;
+            $this->data = data_set($data, 'shopify', data_get($request, 'body.shop'));
+            $this->save();
+
+        }
+
+    }
+
 }

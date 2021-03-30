@@ -75,7 +75,6 @@ class Store extends Authenticatable {
     }
 
     public function registerCustomer($data): stdClass {
-
         return $this->storeEngine->registerCustomer($this,$data);
 
     }

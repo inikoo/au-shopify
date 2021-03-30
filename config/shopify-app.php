@@ -1,5 +1,9 @@
 <?php
 
+use App\Jobs\AfterAuthenticateJob;
+use Osiset\BasicShopifyAPI\Deferrers\Sleep;
+use Osiset\BasicShopifyAPI\Store\Memory;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -73,7 +77,7 @@ return [
     |
     */
 
-    'namespace' => env('SHOPIFY_APP_NAMESPACE', null),
+    'namespace' => env('SHOPIFY_APP_NAMESPACE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -205,7 +209,7 @@ return [
     |
     */
 
-    'api_time_store' => env('SHOPIFY_API_TIME_STORE', \Osiset\BasicShopifyAPI\Store\Memory::class),
+    'api_time_store' => env('SHOPIFY_API_TIME_STORE', Memory::class),
 
     /*
     |--------------------------------------------------------------------------
@@ -216,7 +220,7 @@ return [
     |
     */
 
-    'api_limit_store' => env('SHOPIFY_API_LIMIT_STORE', \Osiset\BasicShopifyAPI\Store\Memory::class),
+    'api_limit_store' => env('SHOPIFY_API_LIMIT_STORE', Memory::class),
 
     /*
     |--------------------------------------------------------------------------
@@ -227,7 +231,7 @@ return [
     |
     */
 
-    'api_deferrer' => env('SHOPIFY_API_DEFERRER', \Osiset\BasicShopifyAPI\Deferrers\Sleep::class),
+    'api_deferrer' => env('SHOPIFY_API_DEFERRER', Sleep::class),
 
     /*
     |--------------------------------------------------------------------------
@@ -346,12 +350,12 @@ return [
     */
 
     'after_authenticate_job' => [
-        /*
+
             [
-                'job' => env('AFTER_AUTHENTICATE_JOB'), // example: \App\Jobs\AfterAuthorizeJob::class
-                'inline' => env('AFTER_AUTHENTICATE_JOB_INLINE', false) // False = dispatch job for later, true = dispatch immediately
+                'job' => AfterAuthenticateJob::class, // example: \App\Jobs\AfterAuthorizeJob::class
+                'inline' => true
             ],
-        */
+
     ],
 
     /*
@@ -365,9 +369,9 @@ return [
     */
 
     'job_queues' => [
-        'webhooks'           => env('WEBHOOKS_JOB_QUEUE', null),
-        'scripttags'         => env('SCRIPTTAGS_JOB_QUEUE', null),
-        'after_authenticate' => env('AFTER_AUTHENTICATE_JOB_QUEUE', null),
+        'webhooks'           => env('WEBHOOKS_JOB_QUEUE'),
+        'scripttags'         => env('SCRIPTTAGS_JOB_QUEUE'),
+        'after_authenticate' => env('AFTER_AUTHENTICATE_JOB_QUEUE'),
     ],
 
     /*
