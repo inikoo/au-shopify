@@ -13,7 +13,7 @@ return [
     | (Not yet complete) A verbose logged output of processes
     |
     */
-    'debug' => (bool) env('SHOPIFY_DEBUG', false),
+    'debug'             => (bool)env('SHOPIFY_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +25,7 @@ return [
     | to your app's folder so you're free to modify before migrating.
     |
     */
-    'manual_migrations' => (bool) env('SHOPIFY_MANUAL_MIGRATIONS', false),
+    'manual_migrations' => (bool)env('SHOPIFY_MANUAL_MIGRATIONS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ return [
     | the route names that are used in this option DO NOT change!
     |
     */
-    'manual_routes' => env('SHOPIFY_MANUAL_ROUTES', false),
+    'manual_routes'     => env('SHOPIFY_MANUAL_ROUTES', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -54,7 +54,7 @@ return [
     | This can help you avoid collisions with your existing route names.
     |
     */
-    'route_names' => [
+    'route_names'       => [
         'home'                 => env('SHOPIFY_ROUTE_NAME_HOME', 'home'),
         'authenticate'         => env('SHOPIFY_ROUTE_NAME_AUTHENTICATE', 'authenticate'),
         'authenticate.oauth'   => env('SHOPIFY_ROUTE_NAME_AUTHENTICATE_OAUTH', 'authenticate.oauth'),
@@ -77,7 +77,7 @@ return [
     |
     */
 
-    'namespace' => env('SHOPIFY_APP_NAMESPACE'),
+    'namespace'     => env('SHOPIFY_APP_NAMESPACE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -113,7 +113,7 @@ return [
     |
     */
 
-    'appbridge_enabled' => (bool) env('SHOPIFY_APPBRIDGE_ENABLED', true),
+    'appbridge_enabled' => (bool)env('SHOPIFY_APPBRIDGE_ENABLED', true),
 
     // Use semver range to link to a major or minor version number.
     // Leaving empty will use the latest verison - not recommended in production.
@@ -271,7 +271,7 @@ return [
     |
     */
 
-    'billing_enabled' => (bool) env('SHOPIFY_BILLING_ENABLED', false),
+    'billing_enabled' => (bool)env('SHOPIFY_BILLING_ENABLED', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -283,7 +283,7 @@ return [
     |
     */
 
-    'billing_freemium_enabled' => (bool) env('SHOPIFY_BILLING_FREEMIUM_ENABLED', false),
+    'billing_freemium_enabled' => (bool)env('SHOPIFY_BILLING_FREEMIUM_ENABLED', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -309,13 +309,20 @@ return [
     */
 
     'webhooks' => [
-        /*
-            [
-                'topic' => env('SHOPIFY_WEBHOOK_1_TOPIC', 'orders/create'),
-                'address' => env('SHOPIFY_WEBHOOK_1_ADDRESS', 'https://some-app.com/webhook/orders-create')
-            ],
-            ...
-        */
+        [
+            'topic'   => 'products/create',
+            'address' => env('APP_URL').'/webhook/create-product'
+        ],
+        [
+            'topic'   => 'products/update',
+            'address' => env('APP_URL').'/webhook/update-product'
+        ],
+        [
+            'topic'   => 'products/delete',
+            'address' => env('APP_URL').'/webhook/delete-product'
+        ]
+
+
     ],
 
     /*
@@ -327,8 +334,7 @@ return [
     |
     */
 
-    'scripttags' => [
-        /*
+    'scripttags' => [/*
             [
                 'src' => env('SHOPIFY_SCRIPTTAG_1_SRC', 'https://some-app.com/some-controller/js-method-response'),
                 'event' => env('SHOPIFY_SCRIPTTAG_1_EVENT', 'onload'),
@@ -351,10 +357,11 @@ return [
 
     'after_authenticate_job' => [
 
-            [
-                'job' => AfterAuthenticateJob::class, // example: \App\Jobs\AfterAuthorizeJob::class
-                'inline' => true
-            ],
+        [
+            'job'    => AfterAuthenticateJob::class,
+            // example: \App\Jobs\AfterAuthorizeJob::class
+            'inline' => true
+        ],
 
     ],
 

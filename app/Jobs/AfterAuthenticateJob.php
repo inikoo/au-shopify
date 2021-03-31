@@ -14,21 +14,21 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
-class AfterAuthenticateJob implements ShouldQueue
-{
+class AfterAuthenticateJob implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function __construct()
-    {
+    public function __construct() {
         //
     }
 
 
     public function handle() {
-        $user=Auth::user();
-        $user->synchronize();
-
+        $user = Auth::user();
+        $user->synchronizeStore();
+        $user->synchronizeProducts();
+        $user->updateStats();
+        $user->createWebhooks();
 
     }
 }

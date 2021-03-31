@@ -20,15 +20,15 @@ use Osiset\ShopifyApp\Traits\ShopModel;
 /**
  * Class User
  *
- * @property integer              $id
- * @property integer              $customer_id
- * @property string               $name
- * @property integer              $number_shopify_products
- * @property integer              $number_shopify_variants
- * @property integer              $number_linked_number_shopify_variants
- * @property array                $data
- * @property array                $settings
- * @property \App\Models\Customer $customer
+ * @property integer                           $id
+ * @property integer                           $customer_id
+ * @property string                            $name
+ * @property integer                           $number_shopify_products
+ * @property integer                           $number_shopify_variants
+ * @property integer                           $number_linked_shopify_variants
+ * @property array                             $data
+ * @property array                             $settings
+ * @property \App\Models\Customer              $customer
  * @property \App\Models\ShopifyProductVariant $shopify_product_variants
  * @mixin \Eloquent
  */
@@ -69,6 +69,7 @@ class User extends Authenticatable implements IShopModel {
         'settings'          => 'array',
         'email_verified_at' => 'datetime',
     ];
+
     /**
      * @var mixed
      */
@@ -118,18 +119,28 @@ class User extends Authenticatable implements IShopModel {
 
 
     function updateStats() {
-        $this->number_shopify_products = $this->shopify_products()->count();
-        $this->number_shopify_variants = $this->shopify_product_variants()->count();
-        $this->number_shopify_variants = $this->shopify_product_variants()->whereNotNull('customer_product_id')->count();
+        $this->number_shopify_products               = $this->shopify_products()->count();
+        $this->number_shopify_variants               = $this->shopify_product_variants()->count();
+        $this->number_linked_shopify_variants = $this->shopify_product_variants()->whereNotNull('customer_product_id')->count();
 
         $this->save();
     }
 
 
-    function synchronize() {
-        $this->synchronizeStore();
-        $this->synchronizeProducts();
-        $this->updateStats();
+    function createWebhooks() {
+        foreach (config('shopify-app.webhooks') as $webhookConfig) {
+            $this->api()->rest(
+                'POST', '/admin/webhooks.json', [
+                          'webhook' => [
+                              'topic'   => $webhookConfig['topic'],
+                              'address' => $webhookConfig['address'],
+                              'format'  => 'json'
+                          ]
+                      ]
+            );
+
+
+        }
     }
 
     function synchronizeStore() {
@@ -160,64 +171,33 @@ class User extends Authenticatable implements IShopModel {
             $this->shopify_products()->whereIn('id', $shopifyProductsToDelete)->delete();
 
             foreach ($productsData as $productData) {
+                $this->synchronizeProduct($productData);
 
-                $variants = Arr::pull($productData, 'variants', []);
-
-                /**
-                 * @var $shopify_product \App\Models\ShopifyProduct
-                 */
-                $shopify_product = $this->shopify_products()->updateOrCreate(
-                    [
-                        'id' => Arr::pull($productData, 'id'),
-
-                    ], [
-                        'status' => Arr::pull($productData, 'status', 'limbo'),
-                        'title'  => Arr::pull($productData, 'title'),
-
-                        'data' => $productData,
-                    ]
-                );
-
-
-                /**
-                 * Removing deleted variants
-                 */
-                $currentVariantsIDs = $shopify_product->variants()->pluck('id')->all();
-                $variantsIDs        = Arr::pluck($variants, 'id');
-                $variantsToDelete   = array_diff($currentVariantsIDs, $variantsIDs);
-                $shopify_product->variants()->whereIn('id', $variantsToDelete)->delete();
-
-
-                foreach ($variants as $variant) {
-
-                    $variant = Arr::except($variant, ['product_id']);
-
-
-                    $shopify_product->variants()->updateOrCreate(
-                        [
-                            'id' => Arr::pull($variant, 'id'),
-
-                        ], [
-                            'sku'                  => Arr::pull($variant, 'sku'),
-                            'title'                => Arr::pull($variant, 'title'),
-                            'inventory_item_id'    => Arr::pull($variant, 'inventory_item_id'),
-                            // 'product_id'           => Arr::pull($variant, 'product_id'),
-                            'fulfillment_service'  => Arr::pull($variant, 'fulfillment_service'),
-                            'inventory_management' => Arr::pull($variant, 'inventory_management'),
-                            'barcode'              => Arr::pull($variant, 'barcode'),
-
-
-                            'data' => $variant,
-                        ]
-                    );
-                }
 
             }
-
-
         }
+    }
 
+    function synchronizeProduct($productData) {
 
+        $variants = Arr::pull($productData, 'variants', []);
+
+        /**
+         * @var $shopify_product \App\Models\ShopifyProduct
+         */
+        $shopify_product = $this->shopify_products()->updateOrCreate(
+            [
+                'id' => Arr::pull($productData, 'id'),
+
+            ], [
+                'status' => Arr::pull($productData, 'status', 'limbo'),
+                'title'  => Arr::pull($productData, 'title'),
+
+                'data' => $productData,
+            ]
+        );
+
+        $shopify_product->synchronizeVariants($variants);
     }
 
 
