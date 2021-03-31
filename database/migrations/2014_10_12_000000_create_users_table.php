@@ -22,6 +22,10 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->unsignedSmallInteger('number_shopify_products')->default(0);
+            $table->unsignedSmallInteger('number_shopify_variants')->default(0);
+            $table->unsignedSmallInteger('number_linked_number_shopify_variants')->default(0);
+
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

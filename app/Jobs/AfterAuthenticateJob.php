@@ -29,5 +29,6 @@ class AfterAuthenticateJob implements ShouldQueue
         $user=Auth::user();
         $user->synchronize();
 
+
     }
 }

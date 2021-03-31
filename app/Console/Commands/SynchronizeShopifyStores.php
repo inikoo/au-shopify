@@ -57,6 +57,12 @@ class SynchronizeShopifyStores extends Command {
             print $user->name."\n";
             $user->synchronize();
 
+            /**
+             * Create webhooks
+             */
+
+
+
 
         }
 
