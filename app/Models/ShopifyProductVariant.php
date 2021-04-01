@@ -9,11 +9,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 
 /**
  * @property integer $id
+ * @property string  $link_status
  * @mixin \Eloquent
  */
 class ShopifyProductVariant extends Model {
@@ -33,9 +34,18 @@ class ShopifyProductVariant extends Model {
         return $this->belongsTo(ShopifyProduct::class);
     }
 
-    public function portfolio(): BelongsTo {
-        return $this->belongsTo(Portfolio::class);
+    public function portfolio_item(): BelongsTo {
+        return $this->belongsTo(PortfolioItem::class);
     }
 
+    public function product(): HasOneThrough {
+        return $this->HasOneThrough(PortfolioItem::class, Product::class);
+    }
+
+    public function calculateLinkStatus(){
+        if($this->link_status=='unknown'){
+           // $portfolio=
+        }
+    }
 
 }

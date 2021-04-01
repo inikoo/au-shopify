@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul A Perusquía-Flores (raul@aiku.io)
- * Created: Mon, 29 Mar 2021 16:19:57 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 01 Apr 2021 14:39:33 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2021. Aiku.io
  */
 
@@ -13,15 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 /**
- * @property integer $id
- * @property \App\Models\Customer   $customer
- * @property \App\Models\Product   $product
+ * @property integer              $id
+ * @property \App\Models\Customer $customer
+ * @property \App\Models\Product  $product
  */
-class Portfolio extends Model {
+class UserPortfolioItem extends Model {
     use softDeletes;
 
-
-    protected $table='customer_product';
 
     protected $casts = [
         'data' => 'array',
@@ -35,12 +33,12 @@ class Portfolio extends Model {
     protected $guarded = [];
 
 
-    public function customer(): BelongsTo {
-        return $this->belongsTo('App\Models\Customer');
+    public function user(): BelongsTo {
+        return $this->belongsTo('App\Models\User');
     }
 
-    public function product(): BelongsTo {
-        return $this->belongsTo('App\Models\Product');
+    public function portfolioItem(): BelongsTo {
+        return $this->belongsTo('App\Models\PortfolioItem');
     }
 
 

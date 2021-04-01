@@ -91,7 +91,7 @@ class CreateProductsTable extends Migration {
         );
 
         Schema::create(
-            'customer_product', function (Blueprint $table) {
+            'portfolio_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('product_id')->constrained();
@@ -109,6 +109,25 @@ class CreateProductsTable extends Migration {
         }
         );
 
+        Schema::create(
+            'user_portfolio_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('portfolio_item_id')->constrained();
+            $table->string('status')->default('unlinked')->index();
+            $table->jsonb('data');
+            $table->timestampsTz();
+            $table->softDeletesTz();
+            $table->unique(
+                [
+                    'user_id',
+                    'portfolio_item_id',
+                ]
+            );
+
+        }
+        );
+
     }
 
     /**
@@ -117,6 +136,12 @@ class CreateProductsTable extends Migration {
      * @return void
      */
     public function down() {
+        Schema::dropIfExists('user_portfolio');
+        Schema::dropIfExists('user_portfolio_items');
+
+        Schema::dropIfExists('portfolio_items');
+        Schema::dropIfExists('portfolios');
+
         Schema::dropIfExists('customer_product');
         Schema::dropIfExists('products');
         Schema::dropIfExists('image_models');

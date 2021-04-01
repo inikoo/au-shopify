@@ -16,9 +16,11 @@ use Spatie\Sluggable\SlugOptions;
 
 
 /**
+ * @property integer id
  * @property integer number_users
  * @property integer number_portfolio_products
  * @property \App\Models\Store store
+ * @property \App\Models\User users
  * @mixin \Eloquent
  */
 class Customer extends Model {
@@ -34,6 +36,9 @@ class Customer extends Model {
 
 
     protected $guarded = [];
+    /**
+     * @var mixed
+     */
 
 
     public function getSlugOptions(): SlugOptions {
@@ -53,14 +58,14 @@ class Customer extends Model {
         return $this->hasMany('App\Models\AccessCode');
     }
 
-    function products(): BelongsToMany {
-        return $this->belongsToMany('App\Models\Product', 'customer_product')->using('App\Models\Portfolio')->withTimestamps()->withPivot(['foreign_id']);
+    public function portfolioItems(): HasMany {
+        return $this->hasMany('App\Models\PortfolioItem');
     }
 
-    function synchronizePortfolio() {
+    function synchronizePortfolioItems() {
 
         $storeEngine = $this->store->storeEngine;
-        $storeEngine->synchronizePortfolio($this);
+        $storeEngine->synchronizePortfolioItems($this);
 
     }
 
@@ -74,7 +79,7 @@ class Customer extends Model {
     }
 
     function updateNumberPortfolioProducts() {
-        $this->number_portfolio_products=$this->products()->count();
+        $this->number_portfolio_products=$this->portfolioItems()->count();
         $this->save();
     }
 

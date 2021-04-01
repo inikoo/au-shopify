@@ -14,7 +14,8 @@ use Illuminate\Support\Arr;
 
 
 /**
- * @property integer $id
+ * @property integer          $id
+ * @property \App\Models\User $user
  * @mixin \Eloquent
  */
 class ShopifyProduct extends Model {
@@ -38,39 +39,45 @@ class ShopifyProduct extends Model {
         return $this->hasMany('App\Models\ShopifyProductVariant');
     }
 
-    function synchronizeVariants($variants) {
+    function synchronizeVariants($variantsData) {
 
         /**
          * Removing deleted variants
          */
         $currentVariantsIDs = $this->variants()->pluck('id')->all();
-        $variantsIDs        = Arr::pluck($variants, 'id');
+        $variantsIDs        = Arr::pluck($variantsData, 'id');
         $variantsToDelete   = array_diff($currentVariantsIDs, $variantsIDs);
         $this->variants()->whereIn('id', $variantsToDelete)->delete();
 
 
-        foreach ($variants as $variant) {
+        foreach ($variantsData as $variantData) {
 
-            $variant = Arr::except($variant, ['product_id']);
+            $variantData = Arr::except($variantData, ['product_id']);
 
-
-            $this->variants()->updateOrCreate(
+            /**
+             * @var \App\Models\ShopifyProductVariant $variant
+             */
+            $variant = $this->variants()->updateOrCreate(
                 [
-                    'id' => Arr::pull($variant, 'id'),
+                    'id' => Arr::pull($variantData, 'id'),
 
                 ], [
-                    'sku'                  => Arr::pull($variant, 'sku'),
-                    'title'                => Arr::pull($variant, 'title'),
-                    'inventory_item_id'    => Arr::pull($variant, 'inventory_item_id'),
-                    // 'product_id'           => Arr::pull($variant, 'product_id'),
-                    'fulfillment_service'  => Arr::pull($variant, 'fulfillment_service'),
-                    'inventory_management' => Arr::pull($variant, 'inventory_management'),
-                    'barcode'              => Arr::pull($variant, 'barcode'),
-
-
-                    'data' => $variant,
+                    'sku'                  => Arr::pull($variantData, 'sku'),
+                    'title'                => Arr::pull($variantData, 'title'),
+                    'inventory_item_id'    => Arr::pull($variantData, 'inventory_item_id'),
+                    'fulfillment_service'  => Arr::pull($variantData, 'fulfillment_service'),
+                    'inventory_management' => Arr::pull($variantData, 'inventory_management'),
+                    'barcode'              => Arr::pull($variantData, 'barcode'),
+                    'data'                 => $variantData,
                 ]
             );
+
+            if ($variant->wasRecentlyCreated) {
+                $variant->link_status = (!$this->user->customer_id ? 'unknown' : 'external');
+                $variant->save();
+            }
+
+
         }
 
     }

@@ -8,6 +8,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\AccessCode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,7 +28,7 @@ class AppRegisterController extends Controller {
 
         if ($result->success) {
 
-            $result->customer->synchronizePortfolio();
+            $result->customer->synchronizePortfolioItems();
 
 
             return response()->json(
@@ -59,14 +60,40 @@ class AppRegisterController extends Controller {
         /**
          * @var $user \App\Models\User
          */
-        $user=$request->user();
-
-        return response()->json(
+        $user = $request->user();
 
 
-                $user->verifyCustomer($request)
+        $result = (object)[
+            'success' => false,
+            'reason'  => 'server-error'
+        ];
 
-        );
+        $accessCode = AccessCode::withTrashed()->firstWhere('access_code', $request->get('accessCode'));
+
+
+        if ($accessCode) {
+            if ($accessCode->trashed()) {
+                $result->reason = 'expired-access-code';
+            } else {
+
+                $user->customer_id = $accessCode->customer_id;
+
+                $user->state = 'linked';
+
+                $user->save();
+
+                $user->customer->accessCodes()->forceDelete();
+                $user->customer->updateNumberUsers();
+
+                $result->success = true;
+                $result->reason  = 'verified';
+            }
+        } else {
+            $result->reason = 'invalid-access-code';
+        }
+
+
+        return response()->json($result);
     }
 
 }

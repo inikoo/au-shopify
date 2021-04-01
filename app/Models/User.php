@@ -7,8 +7,10 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,11 +25,13 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property integer                           $id
  * @property integer                           $customer_id
  * @property string                            $name
+ * @property string                            $state
  * @property integer                           $number_shopify_products
  * @property integer                           $number_shopify_variants
  * @property integer                           $number_linked_shopify_variants
  * @property array                             $data
  * @property array                             $settings
+ * @property array                             $stats
  * @property \App\Models\Customer              $customer
  * @property \App\Models\ShopifyProductVariant $shopify_product_variants
  * @mixin \Eloquent
@@ -38,6 +42,7 @@ class User extends Authenticatable implements IShopModel {
 
 
     protected $attributes = [
+        'stats'    => '{}',
         'data'     => '{}',
         'settings' => '{}',
     ];
@@ -65,6 +70,7 @@ class User extends Authenticatable implements IShopModel {
      * @var array
      */
     protected $casts = [
+        'stats'             => 'array',
         'data'              => 'array',
         'settings'          => 'array',
         'email_verified_at' => 'datetime',
@@ -86,43 +92,69 @@ class User extends Authenticatable implements IShopModel {
         return $this->hasManyThrough(ShopifyProductVariant::class, ShopifyProduct::class);
     }
 
-    function verifyCustomer($request): object {
-
-        $result = (object)[
-            'success' => false,
-            'reason'  => 'server-error'
-        ];
-
-        $accessCode = AccessCode::withTrashed()->firstWhere('access_code', $request->get('accessCode'));
-
-
-        if ($accessCode) {
-            if ($accessCode->trashed()) {
-                $result->reason = 'expired-access-code';
-            } else {
-
-                $this->customer_id = $accessCode->customer_id;
-                $this->save();
-
-                $this->customer->accessCodes()->forceDelete();
-                $this->customer->updateNumberUsers();
-
-                $result->success = true;
-                $result->reason  = 'verified';
-            }
-        } else {
-            $result->reason = 'invalid-access-code';
-        }
-
-        return $result;
+    function portfolioItems() {
+        return $this->hasMany(UserPortfolioItem::class);
     }
 
 
     function updateStats() {
-        $this->number_shopify_products               = $this->shopify_products()->count();
-        $this->number_shopify_variants               = $this->shopify_product_variants()->count();
-        $this->number_linked_shopify_variants = $this->shopify_product_variants()->whereNotNull('customer_product_id')->count();
+        $this->updateProductsStats();
+        $this->updatePortfolioStats();
 
+    }
+
+
+    function updateProductsStats() {
+        $stats = $this->stats;
+
+
+        $shopifyStoreProductsLinkStatus = [
+            'external' => 0,
+            'unknown'  => 0,
+            'possible' => 0,
+            'linked'   => 0,
+            'orphan'   => 0,
+        ];
+
+        $results = DB::table('shopify_product_variants')->select('shopify_product_variants.link_status', DB::raw('count(*) as num'))->leftJoin('shopify_products', 'shopify_product_variants.shopify_product_id', '=', 'shopify_products.id')->where(
+            'shopify_products.user_id', '=', $this->id
+        )->groupBy('shopify_product_variants.link_status')->get();
+
+
+        foreach ($results as $row) {
+            $shopifyStoreProductsLinkStatus[$row->link_status] = $row->num;
+        }
+
+
+        data_set($stats, 'products.link_status', $shopifyStoreProductsLinkStatus);
+
+        $this->stats = $stats;
+        $this->save();
+    }
+
+    function updatePortfolioStats() {
+        $stats = $this->stats;
+
+
+        $shopifyStorePortfolioItemStatus = [
+            'linked' => 0,
+            'unlinked'  => 0,
+
+        ];
+
+        $results = DB::table('user_portfolio_items')->select('user_portfolio_items.status', DB::raw('count(*) as num'))->where(
+            'user_portfolio_items.user_id', '=', $this->id
+        )->groupBy('user_portfolio_items.status')->get();
+
+
+        foreach ($results as $row) {
+            $shopifyStorePortfolioItemStatus[$row->status] = $row->num;
+        }
+
+
+        data_set($stats, 'portfolio.link_status', $shopifyStorePortfolioItemStatus);
+
+        $this->stats = $stats;
         $this->save();
     }
 
@@ -200,5 +232,18 @@ class User extends Authenticatable implements IShopModel {
         $shopify_product->synchronizeVariants($variants);
     }
 
+    function synchronizePortfolio() {
+        if ($this->customer->id) {
+            foreach ($this->customer->portfolioItems()->get() as $portfolioItem) {
+
+                $this->portfolioItems()->updateOrCreate(
+                    [
+                        'portfolio_item_id' => $portfolioItem->id,
+                    ], []
+                );
+
+            }
+        }
+    }
 
 }

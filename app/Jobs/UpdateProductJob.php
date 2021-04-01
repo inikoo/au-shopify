@@ -34,7 +34,7 @@ class UpdateProductJob implements ShouldQueue {
         if ($user->id) {
             $productData = json_decode(json_encode($this->data), true);
             $user->synchronizeProduct($productData);
-            $user->number_linked_shopify_variants = $user->shopify_product_variants()->whereNotNull('customer_product_id')->count();
+            $user->number_linked_shopify_variants = $user->shopify_product_variants()->whereNotNull('portfolio_item_id')->count();
             $user->save();
         }
 

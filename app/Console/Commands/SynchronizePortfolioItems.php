@@ -12,20 +12,20 @@ use App\Models\Customer;
 use Illuminate\Console\Command;
 
 
-class SynchronizePortfolios extends Command {
+class synchronizePortfolioItems extends Command {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:portfolios {customerID}';
+    protected $signature = 'sync:portfolio_items {customerID}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Synchronize portfolios';
+    protected $description = 'Synchronize portfolio items';
 
     /**
      * Create a new command instance.
@@ -55,10 +55,12 @@ class SynchronizePortfolios extends Command {
 
             print $customer->slug."\n";
             $customer->store->storeEngine->setDatabase();
-
-
-            $customer->synchronizePortfolio();
+            $customer->synchronizePortfolioItems();
             $customer->updateNumberPortfolioProducts();
+            foreach ($customer->users as $user) {
+                $user->updatePortfolioStats();
+
+            }
 
         }
 

@@ -7,8 +7,9 @@
 
 namespace App\Traits\Aurora;
 
-use App\Models\Portfolio;
+use App\Models\PortfolioItem;
 use App\Models\Product;
+use Arr;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 
@@ -80,14 +81,14 @@ trait CustomerOps {
 
     }
 
-    function synchronizePortfolio($customer) {
+    function synchronizePortfolioItems($customer) {
 
 
         $sql = "* from `Customer Portfolio Fact` where `Customer Portfolio Customer Key`=?";
         foreach (DB::connection('aurora')->select("select $sql", [$customer->foreign_id]) as $auroraData) {
             $product = (new Product)->firstWhere('foreign_id', $auroraData->{'Customer Portfolio Product ID'});
 
-            if ($product->id) {
+            if ($product) {
 
                 $data = [];
                 if ($auroraData->{'Customer Portfolio Reference'} != '') {
@@ -96,8 +97,7 @@ trait CustomerOps {
                     ];
                 }
 
-
-                Portfolio::withTrashed()->updateOrCreate(
+                $portfolioItem = PortfolioItem::withTrashed()->updateOrCreate(
                     [
                         'foreign_id' => $auroraData->{'Customer Portfolio Key'},
 
@@ -109,6 +109,18 @@ trait CustomerOps {
                         'deleted_at'  => (($auroraData->{'Customer Portfolio Customers State'} == 'Removed' and $auroraData->{'Customer Portfolio Removed Date'} != '') ? $auroraData->{'Customer Portfolio Removed Date'} : null),
                     ]
                 );
+                $portfolioItem->saveUserPortfolio();
+
+                $sql = "`Customer Portfolio Fact` set `Customer Portfolio Shopify Key`=? , `Customer Portfolio Shopify State`=? where `Customer Portfolio Key`=?";
+                DB::connection('aurora')->statement(
+                    "update $sql", [
+                                     $portfolioItem->id,
+                                     (Arr::get($portfolioItem->data,'link_state','unlinked')=='linked'?'Linked':'Unlinked'),
+                                     $auroraData->{'Customer Portfolio Key'}
+                                 ]
+                );
+
+
             }
         }
     }

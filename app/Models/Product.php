@@ -53,7 +53,7 @@ class Product extends Model {
     }
 
     function customers(): BelongsToMany {
-        return $this->belongsToMany('App\Models\Customer', 'customer_product')->using('App\Models\Portfolio')->withTimestamps()->withPivot(['foreign_id']);
+        return $this->belongsToMany('App\Models\Customer', 'portfolio')->using('App\Models\PortfolioItem')->withTimestamps()->withPivot(['foreign_id']);
     }
 
 }

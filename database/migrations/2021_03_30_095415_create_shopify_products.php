@@ -31,8 +31,11 @@ class CreateShopifyProducts extends Migration {
             $table->string('inventory_item_id')->index();
 
             $table->foreignId('shopify_product_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('customer_product_id')->nullable()->index();
-            $table->foreign('customer_product_id')->references('id')->on('customer_product');
+            $table->unsignedBigInteger('portfolio_item_id')->nullable()->index();
+            $table->foreign('portfolio_item_id')->references('id')->on('portfolio_items');
+
+
+            $table->string('link_status')->nullable()->index();
 
 
             $table->string('title')->index();

@@ -53,10 +53,14 @@ class SynchronizeShopifyStores extends Command {
         }
 
         foreach ($users as $user) {
+            $user->updateStats();
+
 
             print $user->name."\n";
             $user->synchronizeStore();
             $user->synchronizeProducts();
+            $user->synchronizePortfolio();
+
             $user->createWebhooks();
             $user->updateStats();
 
