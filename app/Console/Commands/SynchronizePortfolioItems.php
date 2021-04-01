@@ -59,7 +59,6 @@ class synchronizePortfolioItems extends Command {
             $customer->updateNumberPortfolioProducts();
             foreach ($customer->users as $user) {
                 $user->updatePortfolioStats();
-
             }
 
         }

@@ -39,7 +39,8 @@ trait CustomerOps {
                 [
                     'foreign_id' => $foreignCustomer->{'Customer Key'}
                 ], [
-                    'name' => $foreignCustomer->{'Customer Name'}
+                    'name' => $foreignCustomer->{'Customer Name'},
+                    'balance' => $foreignCustomer->{'Customer Account Balance'}
                 ]
             );
 
@@ -86,43 +87,66 @@ trait CustomerOps {
 
         $sql = "* from `Customer Portfolio Fact` where `Customer Portfolio Customer Key`=?";
         foreach (DB::connection('aurora')->select("select $sql", [$customer->foreign_id]) as $auroraData) {
-            $product = (new Product)->firstWhere('foreign_id', $auroraData->{'Customer Portfolio Product ID'});
-
-            if ($product) {
-
-                $data = [];
-                if ($auroraData->{'Customer Portfolio Reference'} != '') {
-                    $data = [
-                        'product_code' => $auroraData->{'Customer Portfolio Reference'}
-                    ];
-                }
-
-                $portfolioItem = PortfolioItem::withTrashed()->updateOrCreate(
-                    [
-                        'foreign_id' => $auroraData->{'Customer Portfolio Key'},
-
-                    ], [
-                        'customer_id' => $customer->id,
-                        'product_id'  => $product->id,
-                        'data'        => $data,
-                        'created_at'  => $auroraData->{'Customer Portfolio Creation Date'},
-                        'deleted_at'  => (($auroraData->{'Customer Portfolio Customers State'} == 'Removed' and $auroraData->{'Customer Portfolio Removed Date'} != '') ? $auroraData->{'Customer Portfolio Removed Date'} : null),
-                    ]
-                );
-                $portfolioItem->saveUserPortfolio();
-
-                $sql = "`Customer Portfolio Fact` set `Customer Portfolio Shopify Key`=? , `Customer Portfolio Shopify State`=? where `Customer Portfolio Key`=?";
-                DB::connection('aurora')->statement(
-                    "update $sql", [
-                                     $portfolioItem->id,
-                                     (Arr::get($portfolioItem->data,'link_state','unlinked')=='linked'?'Linked':'Unlinked'),
-                                     $auroraData->{'Customer Portfolio Key'}
-                                 ]
-                );
+            $this->savePortfolioItem($customer->id, $auroraData);
 
 
-            }
         }
+    }
+
+    function synchronizePortfolioItem($customer_id, $portfolio_item_foreign_id) {
+
+        $sql = "* from `Customer Portfolio Fact` where `Customer Portfolio Key`=?";
+        foreach (DB::connection('aurora')->select("select $sql", [$portfolio_item_foreign_id]) as $auroraData) {
+            return $this->savePortfolioItem($customer_id, $auroraData);
+        }
+        return false;
+
+    }
+
+    private function savePortfolioItem($customer_id, $auroraData) {
+
+
+        $product = (new Product)->firstWhere('foreign_id', $auroraData->{'Customer Portfolio Product ID'});
+
+        if ($product) {
+
+            $data = [];
+            if ($auroraData->{'Customer Portfolio Reference'} != '') {
+                $data = [
+                    'product_code' => $auroraData->{'Customer Portfolio Reference'}
+                ];
+            }
+
+            $portfolioItem = PortfolioItem::withTrashed()->updateOrCreate(
+                [
+                    'foreign_id' => $auroraData->{'Customer Portfolio Key'},
+
+                ], [
+                    'customer_id' => $customer_id,
+                    'product_id'  => $product->id,
+                    'data'        => $data,
+                    'created_at'  => $auroraData->{'Customer Portfolio Creation Date'},
+                    'deleted_at'  => (($auroraData->{'Customer Portfolio Customers State'} == 'Removed' and $auroraData->{'Customer Portfolio Removed Date'} != '') ? $auroraData->{'Customer Portfolio Removed Date'} : null),
+                ]
+            );
+            $portfolioItem->saveUserPortfolio();
+
+            $sql = "`Customer Portfolio Fact` set `Customer Portfolio Shopify Key`=? , `Customer Portfolio Shopify State`=? where `Customer Portfolio Key`=?";
+            DB::connection('aurora')->statement(
+                "update $sql", [
+                                 $portfolioItem->id,
+                                 (Arr::get($portfolioItem->data, 'link_state', 'unlinked') == 'linked' ? 'Linked' : 'Unlinked'),
+                                 $auroraData->{'Customer Portfolio Key'}
+                             ]
+            );
+
+            return $portfolioItem;
+
+        }
+
+        return false;
+
+
     }
 
 

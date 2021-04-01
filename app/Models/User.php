@@ -233,7 +233,7 @@ class User extends Authenticatable implements IShopModel {
     }
 
     function synchronizePortfolio() {
-        if ($this->customer->id) {
+        if ($this->customer) {
             foreach ($this->customer->portfolioItems()->get() as $portfolioItem) {
 
                 $this->portfolioItems()->updateOrCreate(

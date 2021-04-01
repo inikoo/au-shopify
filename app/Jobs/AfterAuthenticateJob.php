@@ -29,6 +29,7 @@ class AfterAuthenticateJob implements ShouldQueue {
         if($user->state=='new'){
             $user->synchronizeStore();
             $user->synchronizeProducts();
+            $user->synchronizePortfolio();
             $user->updateStats();
             $user->createWebhooks();
             $user->state='unlinked';

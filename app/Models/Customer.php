@@ -9,7 +9,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -36,9 +35,7 @@ class Customer extends Model {
 
 
     protected $guarded = [];
-    /**
-     * @var mixed
-     */
+
 
 
     public function getSlugOptions(): SlugOptions {
@@ -68,6 +65,15 @@ class Customer extends Model {
         $storeEngine->synchronizePortfolioItems($this);
 
     }
+    function synchronizePortfolioItem($portfolio_item_foreign_id) {
+
+        $storeEngine = $this->store->storeEngine;
+        return $storeEngine->synchronizePortfolioItem($this->id,$portfolio_item_foreign_id);
+
+    }
+
+
+
 
     public function users(): HasMany {
         return $this->hasMany(User::class);

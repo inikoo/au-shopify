@@ -20,6 +20,9 @@ class CreateCustomersTable extends Migration
             $table->foreignId('store_id')->constrained();
             $table->unsignedMediumInteger('foreign_id')->index();
             $table->string('name')->index();
+            $table->decimal('balance',16)->index();
+
+
             $table->unsignedSmallInteger('number_users')->default(0);
             $table->unsignedSmallInteger('number_portfolio_products')->default(0);
 

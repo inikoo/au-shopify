@@ -14,9 +14,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property integer              $id
+ * @property integer              $customer_id
  * @property array                $data
  * @property \App\Models\Customer $customer
  * @property \App\Models\Product  $product
+ * @mixin \Eloquent
  */
 class PortfolioItem extends Model {
     use softDeletes;
