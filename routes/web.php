@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AppRegisterController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,15 +16,22 @@ use Illuminate\Support\Facades\Route;
 
 Route::get(
     '/', function () {
-    if (Auth::user()->customer_id) {
-        return view('dashboard');
-    } else {
-        return view('verification');
-    }
+    return (Auth::user()->customer_id ? view('dashboard') : view('verification'));
 }
-)->middleware(['auth.shopify'])->name('home');
+)->middleware(['auth.shopify'])->name('dashboard');
 
-Route::post('/verify', [AppRegisterController::class, 'verifyCustomer'])->middleware(['auth.shopify']);
+Route::get(
+    '/products', function () {
+    return (Auth::user()->customer_id ? view('products') : view('verification'));
+}
+)->middleware(['auth.shopify'])->name('products');
+
+Route::post(
+    '/verify', [
+                 UserController::class,
+                 'verifyUser'
+             ]
+)->middleware(['auth.shopify']);
 
 
 
