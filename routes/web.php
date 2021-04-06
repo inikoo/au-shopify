@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get(
     '/', function () {
-    return (Auth::user()->customer_id ? view('dashboard') : view('verification'));
+    return (Auth::user()->customer_id ? view('app') : view('verification'));
 }
 )->middleware(['auth.shopify'])->name('dashboard');
 
