@@ -12,7 +12,7 @@ use App\Models\Customer;
 use Illuminate\Console\Command;
 
 
-class synchronizePortfolioItems extends Command {
+class SynchronizePortfolioItems extends Command {
     /**
      * The name and signature of the console command.
      *

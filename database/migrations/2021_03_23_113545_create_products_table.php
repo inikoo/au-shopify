@@ -114,6 +114,9 @@ class CreateProductsTable extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('portfolio_item_id')->constrained();
+            $table->foreignId('product_id')->constrained();
+            $table->string('code');
+            $table->string('name');
             $table->string('status')->default('unlinked')->index();
             $table->jsonb('data');
             $table->timestampsTz();

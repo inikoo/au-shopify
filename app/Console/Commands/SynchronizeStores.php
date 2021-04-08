@@ -53,9 +53,8 @@ class SynchronizeStores extends Command {
 
             print $store->slug."\n";
             $store->storeEngine->setDatabase();
-
-
-            $store->synchronizeProducts($bar=$this->output);
+            $store->storeEngine->synchronizeStore($store->foreign_id);
+            $store->synchronizeProducts($this->output);
 
         }
 

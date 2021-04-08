@@ -7,6 +7,7 @@
 
 namespace App\Models;
 
+use Cknow\Money\MoneyCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,18 +16,21 @@ use Spatie\Sluggable\SlugOptions;
 
 
 /**
- * @property integer id
- * @property integer number_users
- * @property integer number_portfolio_products
+ * @property integer           id
+ * @property integer           number_users
+ * @property integer           number_portfolio_products
+ * @property array             data
  * @property \App\Models\Store store
- * @property \App\Models\User users
+ * @property \App\Models\User  users
  * @mixin \Eloquent
  */
 class Customer extends Model {
     use HasSlug;
 
     protected $casts = [
-        'data' => 'array',
+        'data'    => 'array',
+        'balance' => MoneyCast::class.':EUR',
+
     ];
 
     protected $attributes = [
@@ -37,6 +41,10 @@ class Customer extends Model {
     protected $guarded = [];
 
 
+    /** @noinspection PhpUnused */
+    public function getCurrencyAttribute(): string {
+        return $this->store->currency;
+    }
 
     public function getSlugOptions(): SlugOptions {
         return SlugOptions::create()->generateSlugsFrom(
@@ -65,14 +73,14 @@ class Customer extends Model {
         $storeEngine->synchronizePortfolioItems($this);
 
     }
+
     function synchronizePortfolioItem($portfolio_item_foreign_id) {
 
         $storeEngine = $this->store->storeEngine;
-        return $storeEngine->synchronizePortfolioItem($this->id,$portfolio_item_foreign_id);
+
+        return $storeEngine->synchronizePortfolioItem($this->id, $portfolio_item_foreign_id);
 
     }
-
-
 
 
     public function users(): HasMany {
@@ -80,12 +88,12 @@ class Customer extends Model {
     }
 
     function updateNumberUsers() {
-        $this->number_users=$this->users()->count();
+        $this->number_users = $this->users()->count();
         $this->save();
     }
 
     function updateNumberPortfolioProducts() {
-        $this->number_portfolio_products=$this->portfolioItems()->count();
+        $this->number_portfolio_products = $this->portfolioItems()->count();
         $this->save();
     }
 

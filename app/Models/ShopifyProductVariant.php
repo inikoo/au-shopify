@@ -8,7 +8,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 
@@ -30,22 +29,33 @@ class ShopifyProductVariant extends Model {
 
     protected $guarded = [];
 
-    public function shopify_product(): BelongsTo {
-        return $this->belongsTo(ShopifyProduct::class);
+    protected $appends = ['formatted_link_status'];
+
+    /** @noinspection PhpUnused */
+    public function getFormattedLinkStatusAttribute(): string {
+
+        switch ($this->link_status){
+            case 'unknown':
+                return sprintf('<span class="inline-flex capitalize items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-400">%s</span>', __('Unlinked'));
+
+            default:
+                return sprintf('<span class="inline-flex capitalize items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-400">%s</span>', $this->link_status);
+        }
+
     }
 
-    public function portfolio_item(): BelongsTo {
-        return $this->belongsTo(PortfolioItem::class);
-    }
+
 
     public function product(): HasOneThrough {
         return $this->HasOneThrough(PortfolioItem::class, Product::class);
     }
 
+    /*
     public function calculateLinkStatus(){
         if($this->link_status=='unknown'){
            // $portfolio=
         }
     }
+    */
 
 }

@@ -44,12 +44,12 @@
                         <div class="ml-3 relative">
                             <div class="store-menu">
 
-                                <a href="https://{{$store->url}}" target="_blank"
+                                <a href="https://{{$user->customer->store->url}}" target="_blank"
                                    class="max-w-xs bg-indigo-600 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white"
                                    id="user-menu" aria-expanded="false" aria-haspopup="true">
                                     <span class="sr-only">Open user menu</span>
 
-                                    <span class="text-white mr-4 text-lg">{{$store->name}}</span>
+                                    <span class="text-white mr-4 text-lg">{{$user->customer->store->name}}</span>
                                     <img class="h-8 w-8 rounded-full"
                                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixqx=qnlYDc49zf&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                                          alt="">
@@ -135,23 +135,23 @@
         </div>
     </nav>
 
-    <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <h1 class="text-lg leading-6 font-semibold text-gray-900">
-                <span x-text="title"></span>
 
-            </h1>
-        </div>
-    </header>
     <main>
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 
 
-            <div class="px-4 py-4 sm:px-0">
-                <div class="border border-solid border-gray-200 rounded-lg h-96 bg-white p-4 ">
-                    <div x-show="tab === 'dashboard'">dashboard x</div>
-                    <div x-show="tab === 'products'">products</div>
-                    <div x-show="tab === 'orders'">orders</div>
+            <div class="px-4 py-0 sm:px-0">
+                <div class="border border-solid border-gray-200 rounded-lg  bg-white p-4 ">
+
+                    <div x-show="tab === 'dashboard'">
+                        <x-dashboard :user="$user"/>
+                    </div>
+                    <div x-show="tab === 'products'">
+                        <x-products.products-index :user="$user"/>
+                    </div>
+                    <div x-show="tab === 'orders'">
+                        <x-orders :user="$user"/>
+                    </div>
 
                 </div>
             </div>
@@ -166,9 +166,16 @@
         window["translations"] = @json($translations, JSON_PRETTY_PRINT);
 
         const actions = window['app-bridge'].actions;
-        const myTitleBar = window['app-bridge'].actions['TitleBar'].create(app, {
+        const myTitleBar = actions['TitleBar'].create(app, {
             title: '{{$title()}}',
         });
+
+        window.Spruce.store('product_stats', {
+            shopify_products: '{{Arr::get($user->stats,'products.total','0')}}',
+            linked_products: '{{Arr::get($user->stats,'products.linked_status.linked','0')}}',
+            portfolio_items: '{{Arr::get($user->stats,'portfolio.total','0')}}',
+        });
+
     </script>
 
 @endsection

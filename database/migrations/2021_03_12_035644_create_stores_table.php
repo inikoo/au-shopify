@@ -49,6 +49,8 @@ class CreateStoresTable extends Migration {
             $table->string('slug')->unique();
             $table->string('name');
             $table->string('url');
+            $table->string('currency');
+            $table->string('locale');
 
             $table->unsignedMediumInteger('foreign_id')->index();
 

@@ -1,5 +1,12 @@
 <?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Wed, 07 Apr 2021 17:29:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2021. Aiku.io
+ */
 
+use App\Http\Controllers\ShopifyProductController;
+use App\Http\Controllers\ShopifyProductVariantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +25,7 @@ Route::get(
     '/', function () {
     return (Auth::user()->customer_id ? view('app') : view('verification'));
 }
-)->middleware(['auth.shopify'])->name('dashboard');
+)->middleware(['auth.shopify'])->name('products');
 
 Route::get(
     '/products', function () {
@@ -33,5 +40,32 @@ Route::post(
              ]
 )->middleware(['auth.shopify']);
 
+Route::get(
+    '/shopify_products_variants', [
+                           ShopifyProductVariantController::class,
+                           'fetch'
+                       ]
+)->middleware(['auth.shopify']);
+Route::get(
+    '/shopify_products/create', [
+                           ShopifyProductController::class,
+                           'create'
+                       ]
+)->middleware(['auth.shopify']);
 
+
+
+Route::get(
+    '/linked_products', [
+                           ShopifyProductVariantController::class,
+                           'fetchLinked'
+                       ]
+)->middleware(['auth.shopify']);
+
+Route::get(
+    '/portfolio_items', [
+                          UserController::class,
+                           'fetchProducts'
+                       ]
+)->middleware(['auth.shopify']);
 

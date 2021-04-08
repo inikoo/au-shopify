@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * @property integer              $id
  * @property integer              $customer_id
+ * @property integer              $product_id
  * @property array                $data
  * @property \App\Models\Customer $customer
  * @property \App\Models\Product  $product
@@ -49,7 +50,12 @@ class PortfolioItem extends Model {
             $user->portfolioItems()->updateOrCreate(
                 [
                     'portfolio_item_id' => $this->id,
-                ], []
+                ], [
+                    'product_id' => $this->product_id,
+                    'code'       => $this->product->code,
+                    'name'       => $this->product->name
+
+                ]
             );
 
         }

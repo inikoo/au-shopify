@@ -5,7 +5,7 @@
  * Copyright (c) 2021. Aiku.io
  */
 
-namespace App\Traits\Aurora;
+namespace App\Helpers\SyncOps\Aurora;
 
 use Illuminate\Support\Facades\DB;
 
@@ -26,8 +26,10 @@ trait StoreOps {
                 [
                     'foreign_id' => $foreignStore->{'Store Key'},
                 ], [
-                    'name' => $foreignStore->{'Store Name'},
-                    'url'  => $foreignStore->{'Store URL'},
+                    'name'     => $foreignStore->{'Store Name'},
+                    'url'      => $foreignStore->{'Store URL'},
+                    'locale'   => $foreignStore->{'Store Locale'},
+                    'currency' => $foreignStore->{'Store Currency Code'},
                 ]
             );
 

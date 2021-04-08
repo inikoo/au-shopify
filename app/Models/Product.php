@@ -17,6 +17,8 @@ use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property integer $id
+ * @property string $code
+ * @property string $name
  * @property mixed   store
  * @mixin \Eloquent
  */

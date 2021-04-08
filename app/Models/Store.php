@@ -25,7 +25,9 @@ use stdClass;
  * @property string  $name
  * @property string  $url
  * @property string  $slug
- *
+ * @property string  $currency
+ * @property string  $locale
+
  * @property array   $data
  * @property \App\Models\StoreEngine   storeEngine
  * @method static where(string $string, array|string|null $argument)

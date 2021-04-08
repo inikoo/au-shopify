@@ -7,15 +7,14 @@
 
 namespace App\Models;
 
+use App\Helpers\SyncOps\Shopify\UserOps;
 use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Arr;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
 use Osiset\ShopifyApp\Traits\ShopModel;
 
@@ -39,6 +38,7 @@ use Osiset\ShopifyApp\Traits\ShopModel;
 class User extends Authenticatable implements IShopModel {
     use HasFactory, Notifiable;
     use ShopModel;
+    use UserOps;
 
 
     protected $attributes = [
@@ -76,9 +76,6 @@ class User extends Authenticatable implements IShopModel {
         'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * @var mixed
-     */
 
     public function customer(): BelongsTo {
         return $this->belongsTo(Customer::class);
@@ -92,9 +89,11 @@ class User extends Authenticatable implements IShopModel {
         return $this->hasManyThrough(ShopifyProductVariant::class, ShopifyProduct::class);
     }
 
-    function portfolioItems() {
+    function portfolioItems(): HasMany {
         return $this->hasMany(UserPortfolioItem::class);
     }
+
+
 
 
     function updateStats() {
@@ -125,7 +124,10 @@ class User extends Authenticatable implements IShopModel {
             $shopifyStoreProductsLinkStatus[$row->link_status] = $row->num;
         }
 
+        data_set(
+            $stats, 'products.total', $shopifyStoreProductsLinkStatus['external'] + $shopifyStoreProductsLinkStatus['unknown'] + $shopifyStoreProductsLinkStatus['possible'] + $shopifyStoreProductsLinkStatus['linked'] + $shopifyStoreProductsLinkStatus['orphan']
 
+        );
         data_set($stats, 'products.link_status', $shopifyStoreProductsLinkStatus);
 
         $this->stats = $stats;
@@ -137,8 +139,8 @@ class User extends Authenticatable implements IShopModel {
 
 
         $shopifyStorePortfolioItemStatus = [
-            'linked' => 0,
-            'unlinked'  => 0,
+            'linked'   => 0,
+            'unlinked' => 0,
 
         ];
 
@@ -151,7 +153,7 @@ class User extends Authenticatable implements IShopModel {
             $shopifyStorePortfolioItemStatus[$row->status] = $row->num;
         }
 
-
+        data_set($stats, 'portfolio.total', $shopifyStorePortfolioItemStatus['linked'] + $shopifyStorePortfolioItemStatus['unlinked']);
         data_set($stats, 'portfolio.link_status', $shopifyStorePortfolioItemStatus);
 
         $this->stats = $stats;
@@ -175,75 +177,5 @@ class User extends Authenticatable implements IShopModel {
         }
     }
 
-    function synchronizeStore() {
-        $request = $this->api()->rest('GET', '/admin/shop.json');
-
-        if (data_get($request, 'status') == 200) {
-
-            $data       = $this->data;
-            $this->data = data_set($data, 'shopify', data_get($request, 'body.shop'));
-            $this->save();
-
-        }
-    }
-
-    function synchronizeProducts() {
-        $request = $this->api()->rest('GET', '/admin/products.json');
-        if (data_get($request, 'status') == 200) {
-
-
-            $productsData = data_get($request, 'body.products.container');
-
-            /**
-             * Removing deleted products
-             */
-            $currentShopifyProductsIDs = $this->shopify_products()->pluck('id')->all();
-            $shopifyProductsIDs        = Arr::pluck($productsData, 'id');
-            $shopifyProductsToDelete   = array_diff($currentShopifyProductsIDs, $shopifyProductsIDs);
-            $this->shopify_products()->whereIn('id', $shopifyProductsToDelete)->delete();
-
-            foreach ($productsData as $productData) {
-                $this->synchronizeProduct($productData);
-
-
-            }
-        }
-    }
-
-    function synchronizeProduct($productData) {
-
-        $variants = Arr::pull($productData, 'variants', []);
-
-        /**
-         * @var $shopify_product \App\Models\ShopifyProduct
-         */
-        $shopify_product = $this->shopify_products()->updateOrCreate(
-            [
-                'id' => Arr::pull($productData, 'id'),
-
-            ], [
-                'status' => Arr::pull($productData, 'status', 'limbo'),
-                'title'  => Arr::pull($productData, 'title'),
-
-                'data' => $productData,
-            ]
-        );
-
-        $shopify_product->synchronizeVariants($variants);
-    }
-
-    function synchronizePortfolio() {
-        if ($this->customer) {
-            foreach ($this->customer->portfolioItems()->get() as $portfolioItem) {
-
-                $this->portfolioItems()->updateOrCreate(
-                    [
-                        'portfolio_item_id' => $portfolioItem->id,
-                    ], []
-                );
-
-            }
-        }
-    }
 
 }

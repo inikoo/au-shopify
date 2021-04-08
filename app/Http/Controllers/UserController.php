@@ -57,10 +57,17 @@ class UserController extends Controller {
             }
         } else {
             $result->reason = 'invalid-access-code';
+            $result->errorMessage=__('The access code is invalid 🤔');
         }
 
 
         return response()->json($result);
+    }
+
+    function fetchProducts(Request $request) {
+
+        return $request->user()->portfolioItems()->paginate(20);
+
     }
 
 }

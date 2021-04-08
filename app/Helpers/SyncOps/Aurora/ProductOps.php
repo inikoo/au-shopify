@@ -5,7 +5,7 @@
  * Copyright (c) 2021. Aiku.io
  */
 
-namespace App\Traits\Aurora;
+namespace App\Helpers\SyncOps\Aurora;
 
 use Illuminate\Support\Facades\DB;
 

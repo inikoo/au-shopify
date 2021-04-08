@@ -1,8 +1,12 @@
 <?php
+/*
+ * Author: Raul A Perusquía-Flores (raul@aiku.io)
+ * Created: Wed, 07 Apr 2021 00:09:08 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2021. Aiku.io
+ */
 
 namespace App\View\Components;
 
-use App\Models\Store;
 use Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
@@ -11,6 +15,7 @@ class Shell extends Component {
 
     public $routeName;
     public $translations;
+    public $user;
 
 
     /**
@@ -19,6 +24,8 @@ class Shell extends Component {
      */
     public function __construct() {
         $this->routeName    = Route::currentRouteName();
+        $this->user    = Auth::user();
+
         $this->translations = [
             'title' => [
                 'dashboard' => __('Dashboard'),
@@ -46,7 +53,5 @@ class Shell extends Component {
         return data_get($this->translations['title'], $this->routeName);
     }
 
-    public function store(): Store {
-        return Auth::user()->customer->store;
-    }
+
 }

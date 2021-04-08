@@ -7,13 +7,13 @@
 
 namespace App\Models\Engines;
 
-use App\Traits\Aurora\CustomerOps;
 
 
 use App\Models\StoreEngine;
-use App\Traits\Aurora\ImageOps;
-use App\Traits\Aurora\ProductOps;
-use App\Traits\Aurora\StoreOps;
+use App\Helpers\SyncOps\Aurora\CustomerOps;
+use App\Helpers\SyncOps\Aurora\ImageOps;
+use App\Helpers\SyncOps\Aurora\ProductOps;
+use App\Helpers\SyncOps\Aurora\StoreOps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Arr;
