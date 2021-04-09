@@ -61,7 +61,10 @@ class SynchronizeShopifyStores extends Command {
             $user->synchronizeProducts();
             $user->synchronizePortfolio();
 
-            $user->createWebhooks();
+            if($user->customer_id){
+                $user->setupShopifyStore();
+            }
+
             $user->updateStats();
 
 

@@ -112,7 +112,7 @@ class CreateProductsTable extends Migration {
         Schema::create(
             'user_portfolio_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');;
             $table->foreignId('portfolio_item_id')->constrained();
             $table->foreignId('product_id')->constrained();
             $table->string('code');

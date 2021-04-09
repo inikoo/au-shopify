@@ -15,7 +15,7 @@ trait UserOps {
     function synchronizeStore() {
         $request = $this->api()->rest('GET', '/admin/shop.json');
 
-        if (data_get($request, 'status') == 200) {
+        if (in_array(data_get($request, 'status') ,[200,201])) {
 
             $data       = $this->data;
             $this->data = data_set($data, 'shopify', data_get($request, 'body.shop'));

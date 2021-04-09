@@ -160,8 +160,12 @@ class User extends Authenticatable implements IShopModel {
         $this->save();
     }
 
+    /**
+     * Create webhooks and fulfillment service
+     */
+    function setupShopifyStore() {
 
-    function createWebhooks() {
+       // dd($this->data);
         foreach (config('shopify-app.webhooks') as $webhookConfig) {
             $this->api()->rest(
                 'POST', '/admin/webhooks.json', [
@@ -172,9 +176,34 @@ class User extends Authenticatable implements IShopModel {
                           ]
                       ]
             );
-
-
         }
+
+        $request=$this->api()->rest(
+            'POST', '/admin/fulfillment_services.json', [
+                      'fulfillment_service' => [
+                          'name'   => $this->customer->store->name,
+                          'callback_url'   => config('app.url').'/webhook/fulfillment-services',
+                          'inventory_management'=>true,
+                          'tracking_support'=>true,
+                          'requires_shipping_method'=>true,
+                          'format'=>'json'
+
+
+
+                      ]
+                  ]
+        );
+        if (data_get($request, 'status')==201) {
+            $data = $this->data;
+            data_set($data, 'fulfillment_service.id', data_get($request, 'body.fulfillment_service.id'));
+            data_set($data, 'fulfillment_service.provider_id', data_get($request, 'body.fulfillment_service.provider_id'));
+            data_set($data, 'fulfillment_service.location_id', data_get($request, 'body.fulfillment_service.location_id'));
+            $this->data = $data;
+            $this->save();
+        }
+
+
+
     }
 
 

@@ -14,7 +14,7 @@ class CreateShopifyProducts extends Migration {
         Schema::create(
             'shopify_products', function (Blueprint $table) {
             $table->unsignedBigInteger('id')->primary();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');;
             $table->string('status')->index();
             $table->string('title')->index();
 
