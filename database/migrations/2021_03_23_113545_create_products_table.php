@@ -112,7 +112,7 @@ class CreateProductsTable extends Migration {
         Schema::create(
             'user_portfolio_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');;
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('portfolio_item_id')->constrained();
             $table->foreignId('product_id')->constrained();
             $table->string('code');
@@ -139,13 +139,8 @@ class CreateProductsTable extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('user_portfolio');
         Schema::dropIfExists('user_portfolio_items');
-
         Schema::dropIfExists('portfolio_items');
-        Schema::dropIfExists('portfolios');
-
-        Schema::dropIfExists('customer_product');
         Schema::dropIfExists('products');
         Schema::dropIfExists('image_models');
         Schema::dropIfExists('images');
