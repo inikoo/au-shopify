@@ -76,9 +76,9 @@ class StoreEngine extends Model {
         $this->engine->setDatabase(Arr::get($this->data, 'database'));
     }
 
-    public function saveStoreEngineToken($token, $storeId) {
+    public function saveStoreEngineToken($token, $foreignId) {
         $this->setDatabase();
-        $this->engine->saveStoreEngineToken($token, $storeId);
+        $this->engine->saveStoreEngineToken($token, $foreignId);
     }
 
 

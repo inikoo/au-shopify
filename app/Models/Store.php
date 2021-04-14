@@ -55,7 +55,7 @@ class Store extends Authenticatable {
 
         $token=$this->createToken('DirectLink')->plainTextToken;
 
-        $this->storeEngine->saveStoreEngineToken($token,$this->id);
+        $this->storeEngine->saveStoreEngineToken($token,$this->foreign_id);
 
         return $token;
     }

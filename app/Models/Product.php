@@ -17,9 +17,12 @@ use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property integer $id
- * @property string $code
- * @property string $name
+ * @property string  $code
+ * @property string  $name
+ * @property array   $data
  * @property mixed   store
+* @property mixed   images
+
  * @mixin \Eloquent
  */
 class Product extends Model {

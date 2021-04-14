@@ -8,6 +8,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Jobs\AfterRegisterCustomerJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,10 +24,14 @@ class CustomerController extends Controller {
         );
 
         $store  = $request->user();
+
         $result = $store->registerCustomer($request);
 
         if ($result->success) {
-            $result->customer->synchronizePortfolioItems();
+
+
+            AfterRegisterCustomerJob::dispatch($result->customer->id);
+
             return response()->json(
                 [
                     'success'     => true,

@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->string('state')->default('new');
+            $table->unsignedBigInteger('fulfillment_service_id')->nullable();
             $table->json('stats');
             $table->json('data');
             $table->json('settings');

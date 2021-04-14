@@ -30,6 +30,9 @@ trait StoreOps {
                     'url'      => $foreignStore->{'Store URL'},
                     'locale'   => $foreignStore->{'Store Locale'},
                     'currency' => $foreignStore->{'Store Currency Code'},
+                    'data'=>[
+                        'email'=> $foreignStore->{'Store Email'}
+                    ]
                 ]
             );
 
@@ -49,13 +52,13 @@ trait StoreOps {
 
     }
 
-    public function saveStoreEngineToken($token, $storeID) {
+    public function saveStoreEngineToken($token, $foreignId) {
 
         $sql = "`Store Dimension` set `Store Shopify API Key`=? where `Store Key`=?";
         DB::connection('aurora')->statement(
             "update $sql", [
                              $token,
-                             $storeID
+                             $foreignId
                          ]
         );
 

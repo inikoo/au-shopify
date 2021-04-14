@@ -86,6 +86,23 @@ trait ProductOps {
 
             $this->synchronizeProductImages($product);
 
+
+            $data=$product->data;
+            data_set($data,'body_html',$foreignProduct->{'Product Published Webpage Description'});
+            data_set($data,'grams',$foreignProduct->{'Product Unit Weight'});
+            data_set($data,'rrp',$foreignProduct->{'Product RRP'} / $units);
+            data_set($data,'barcode',$foreignProduct->{'Product Barcode Number'});
+
+
+
+
+
+            $product->data=$data;
+            $product->save();
+
+
+
+
             if ($bar) {
                 $bar->advance();
             }
@@ -124,8 +141,8 @@ trait ProductOps {
 
         $imagesModelData = $this->getAuroraImagesData(
             [
-                'object'     => 'Product',
-                'object_key' => $product->foreign_id,
+                'objectType'     => 'Product',
+                'object' => $product,
 
             ]
         );

@@ -4,17 +4,14 @@
  * Copyright (c) 2021. Aiku.io
  */
 
-
-
 window.createShopifyProduct = function (id) {
-
 
     return {
         id:id,
         isLoading:false,
         submitAction($dispatch,id=this.id) {
             this.isLoading = true;
-            fetch('/shopify_products/create?user_portfolio_items_id='+id)
+            fetch('/shopify_products/create?user_portfolio_item_id='+id)
                 .then((res) => res.json())
                 .then((res) => {
 
@@ -22,7 +19,6 @@ window.createShopifyProduct = function (id) {
 
                         document.getElementById("portfolio_item_"+id).getElementsByClassName("formatted_status")[0].innerHTML ='test';
                         document.getElementById("portfolio_item_"+id).getElementsByClassName("action")[0].innerHTML ='';
-
                         this.$store.product_stats.portfolio_items='xx';
 
                     }

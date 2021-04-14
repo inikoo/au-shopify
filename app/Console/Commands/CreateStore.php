@@ -49,6 +49,7 @@ class CreateStore extends Command {
          * @var $store \App\Models\Store
          */
         $store = $storeEngine->synchronizeStore($this->argument('foreign_id'));
+
         $store->saveStoreEngineToken();
 
         return 0;
