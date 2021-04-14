@@ -17,9 +17,11 @@ window.createShopifyProduct = function (id) {
 
                     if(res.success){
 
-                        document.getElementById("portfolio_item_"+id).getElementsByClassName("formatted_status")[0].innerHTML ='test';
-                        document.getElementById("portfolio_item_"+id).getElementsByClassName("action")[0].innerHTML ='';
-                        this.$store.product_stats.portfolio_items='xx';
+                        document.getElementById("portfolio_item_"+id).getElementsByClassName("formatted_status")[0].innerHTML =res['formatted_status'];
+                        document.getElementById("portfolio_item_"+id).getElementsByClassName("action")[0].innerHTML =res['action'];
+                        this.$store.product_stats.portfolio_items=res['portfolio_items'];
+                        this.$store.product_stats.linked_products=res['linked_products'];
+                        this.$store.product_stats.shopify_products=res['shopify_products'];
 
                     }
 

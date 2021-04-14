@@ -18,24 +18,14 @@ class ShopifyProductController extends Controller {
 
         $request->validate(
             [
-                'user_portfolio_item_id'   => 'exists:user_portfolio_items,id',
+                'user_portfolio_item_id' => 'exists:user_portfolio_items,id',
             ]
         );
-        $user_portfolio_items=UserPortfolioItem::find($request->get('user_portfolio_item_id'));
-
-
-        $result=$user_portfolio_items->createShopifyProduct();
-
-
-
-        $result=[
-            'success'=>true,
-            'formatted_status'=>'caca'
-        ];
+        $user_portfolio_items = UserPortfolioItem::find($request->get('user_portfolio_item_id'));
+        $result               = $user_portfolio_items->createShopifyProduct();
 
         return response()->json($result);
 
     }
-
 
 }

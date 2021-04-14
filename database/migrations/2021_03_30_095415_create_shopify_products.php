@@ -30,8 +30,8 @@ class CreateShopifyProducts extends Migration {
             $table->unsignedBigInteger('id')->primary();
             $table->string('inventory_item_id')->index();
             $table->foreignId('shopify_product_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('portfolio_item_id')->nullable()->index();
-            $table->foreign('portfolio_item_id')->references('id')->on('portfolio_items');
+            $table->unsignedBigInteger('user_portfolio_item_id')->nullable()->index();
+            $table->foreign('user_portfolio_item_id')->references('id')->on('user_portfolio_items');
             $table->string('link_status')->nullable()->index();
             $table->string('title')->index();
             $table->string('fulfillment_service')->nullable()->index();
@@ -44,6 +44,10 @@ class CreateShopifyProducts extends Migration {
         }
         );
 
+        Schema::table('user_portfolio_items', function (Blueprint $table) {
+            $table->foreignId('shopify_product_variant_id')->after('id')->nullable()->constrained();
+        });
+
 
     }
 
@@ -53,7 +57,11 @@ class CreateShopifyProducts extends Migration {
      * @return void
      */
     public function down() {
+        Schema::table('user_portfolio_items', function (Blueprint $table) {
+            $table->dropColumn('shopify_product_variant_id');
+        });
         Schema::dropIfExists('shopify_product_variants');
         Schema::dropIfExists('shopify_products');
+
     }
 }

@@ -20,19 +20,12 @@ class CreateProductsTable extends Migration {
         Schema::create(
             'images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('communal_image_id')->nullable()->index();
             $table->string('checksum')->nullable()->index();
+            $table->string('mime');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedInteger('foreign_id')->nullable()->index();
-            $table->foreignId('store_id')->constrained();
-            $table->unique(
-                [
-                    'foreign_id',
-                    'store_id',
-                ]
-            );
+
         }
         );
 
@@ -41,13 +34,15 @@ class CreateProductsTable extends Migration {
             $table->id();
             $table->unsignedBigInteger('image_id');
             $table->foreign('image_id')->references('id')->on('images');
-
+            $table->string('url');
             $table->string('imageable_type')->nullable()->index();
             $table->unsignedBigInteger('imageable_id')->nullable()->index();
 
             $table->string('scope')->index();
             $table->smallInteger('precedence')->default(0);
             $table->jsonb('data');
+            $table->unsignedInteger('foreign_id')->index();
+
             $table->timestampsTz();
             $table->index(
                 [
@@ -114,9 +109,9 @@ class CreateProductsTable extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('portfolio_item_id')->constrained();
-            $table->foreignId('product_id')->constrained();
-            $table->string('code');
-            $table->string('name');
+            $table->foreignId('product_id')->nullable()->constrained();
+            $table->string('code')->nullable();
+            $table->string('name')->nullable();
             $table->string('status')->default('unlinked')->index();
             $table->jsonb('data');
             $table->timestampsTz();

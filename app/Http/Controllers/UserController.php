@@ -44,15 +44,17 @@ class UserController extends Controller {
             } else {
 
                 $user->customer_id = $accessCode->customer_id;
+                $user->save();
+
                 $user->synchronizeStore();
                 $user->synchronizeProducts();
                 $user->synchronizePortfolio();
                 $user->updateStats();
                 $user->setupShopifyStore();
 
+
                 $user->state = 'linked';
                 $user->save();
-
 
 
 

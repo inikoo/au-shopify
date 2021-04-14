@@ -14,8 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 /**
- * @property integer          $id
- * @property \App\Models\User $user
+ * @property integer                           $id
+ * @property \App\Models\User                  $user
+ * @property \App\Models\ShopifyProductVariant variants
  * @mixin \Eloquent
  */
 class ShopifyProduct extends Model {
@@ -39,7 +40,6 @@ class ShopifyProduct extends Model {
     public function variants(): HasMany {
         return $this->hasMany('App\Models\ShopifyProductVariant');
     }
-
 
 
 }

@@ -55,6 +55,7 @@ class SynchronizePortfolioItems extends Command {
 
             print $customer->slug."\n";
             $customer->store->storeEngine->setDatabase();
+            $customer->store->storeEngine->engine->synchronizeCustomer($customer->store, $customer->foreign_id);
             $customer->synchronizePortfolioItems();
             $customer->updateNumberPortfolioProducts();
             foreach ($customer->users as $user) {

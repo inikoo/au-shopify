@@ -37,6 +37,8 @@ class ShopifyProductVariant extends Model {
         switch ($this->link_status){
             case 'unknown':
                 return sprintf('<span class="inline-flex capitalize items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-400">%s</span>', __('Unlinked'));
+            case 'linked':
+                return sprintf('<span class="inline-flex capitalize items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">%s</span>', __('Linked'));
 
             default:
                 return sprintf('<span class="inline-flex capitalize items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-400">%s</span>', $this->link_status);

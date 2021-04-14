@@ -24,7 +24,6 @@ trait CustomerOps {
 
         $sql = ' * from `Customer Dimension` where `Customer Store Key`=? and `Customer Key`=?';
 
-
         foreach (
             DB::connection('aurora')->select(
                 "select $sql", [
@@ -35,14 +34,20 @@ trait CustomerOps {
         ) {
 
 
-            $customer = $store->customers()->firstorCreate(
+
+
+            $customer = $store->customers()->updateOrCreate(
                 [
                     'foreign_id' => $foreignCustomer->{'Customer Key'}
                 ], [
-                    'name' => $foreignCustomer->{'Customer Name'},
-                    'balance' => $foreignCustomer->{'Customer Account Balance'}
+                    'name'    => $foreignCustomer->{'Customer Name'},
+                    'balance' => (double) $foreignCustomer->{'Customer Account Balance'}
                 ]
             );
+
+
+
+
 
             $result->success  = true;
             $result->customer = $customer;
@@ -99,6 +104,7 @@ trait CustomerOps {
         foreach (DB::connection('aurora')->select("select $sql", [$portfolio_item_foreign_id]) as $auroraData) {
             return $this->savePortfolioItem($customer_id, $auroraData);
         }
+
         return false;
 
     }

@@ -15,9 +15,14 @@ trait UserOps {
     function synchronizeStore() {
         $request = $this->api()->rest('GET', '/admin/shop.json');
 
-        if (in_array(data_get($request, 'status') ,[200,201])) {
+        if (in_array(
+            data_get($request, 'status'), [
+            200,
+            201
+        ]
+        )) {
 
-            $data       = $this->data;
+            $data = $this->data;
             $this->data = data_set($data, 'shopify', data_get($request, 'body.shop'));
             $this->save();
 
@@ -70,13 +75,19 @@ trait UserOps {
     }
 
     function synchronizePortfolio() {
+
         if ($this->customer) {
             foreach ($this->customer->portfolioItems()->get() as $portfolioItem) {
+
 
                 $this->portfolioItems()->updateOrCreate(
                     [
                         'portfolio_item_id' => $portfolioItem->id,
-                    ], []
+                    ], [
+                        'product_id' => $portfolioItem->product_id,
+                        'code'       => $portfolioItem->product->code,
+                        'name'       => $portfolioItem->product->name
+                    ]
                 );
 
             }

@@ -172,7 +172,7 @@
 
         window.Spruce.store('product_stats', {
             shopify_products: '{{Arr::get($user->stats,'products.total','0')}}',
-            linked_products: '{{Arr::get($user->stats,'products.linked_status.linked','0')}}',
+            linked_products: '{{Arr::get($user->stats,'products.link_status.linked','xx')}}',
             portfolio_items: '{{Arr::get($user->stats,'portfolio.total','0')}}',
         });
 

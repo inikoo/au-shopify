@@ -14,46 +14,6 @@ use Illuminate\Support\Facades\DB;
 trait ImageOps {
 
 
-    function getAuroraImageFilename($imageAuroraData) {
-
-
-        $image_path = sprintf(
-                config('app.aurora.images_path').$this->owners['storeEngine']->data['code']
-            ).'/db/'.$imageAuroraData->{'Image File Checksum'}[0].'/'.$imageAuroraData->{'Image File Checksum'}[1].'/'.$imageAuroraData->{'Image File Checksum'}.'.'.$imageAuroraData->{'Image File Format'};
-
-        if (file_exists($image_path)) {
-            return [
-                'image_path' => $image_path,
-                'filename'   => $imageAuroraData->{'Image Filename'},
-                'mime'       => $imageAuroraData->{'Image MIME Type'}
-            ];
-        } else {
-            return false;
-        }
-
-    }
-
-
-    /*
-    function getImageData($foreignImageID) {
-        $sql = "* from `Image Dimension` I  where `Image Key`=?";
-        foreach (
-            DB::connection('aurora')->select(
-                "select $sql ", [$foreignImageID]
-            ) as $imageAuroraData
-        ) {
-            $image_filename_data=getAuroraImageFilename($imageAuroraData);
-            if ($image_filename_data) {
-                return create_image_from_legacy$imageAuroraData,$image_filename_data);
-            }
-
-        }
-
-        return false;
-
-    }
-*/
-
     function getAuroraImagesData($params): array {
 
         $imageModelData = [];
@@ -69,18 +29,35 @@ trait ImageOps {
                 "select $sql",
 
                 [
-                    $params['object'],
-                    $params['object_key']
+                    $params['objectType'],
+                    $params['object']->foreign_id
                 ]
             ) as $imageAuroraData
         ) {
 
 
-            $auroraImageFilename = $this->getAuroraImageFilename($imageAuroraData);
+            $image = (new Image)->updateOrCreate(
+                [
+                    'checksum' => $imageAuroraData->{'Image File Checksum'},
+                ], [
+                    'mime'=> $imageAuroraData->{'Image MIME Type'},
+                    'data'     => [
+                        'width'  => $imageAuroraData->{'Image Width'},
+                        'height' => $imageAuroraData->{'Image Height'},
+                        'size'   => $imageAuroraData->{'Image File Size'},
+                    ]
+                ]
+            );
 
-            if ($auroraImageFilename) {
-                $imageModelData[] = $this->createImageFromAurora($imageAuroraData, $auroraImageFilename);
-            }
+            $imageAuroraData->image_id                = $image->id;
+            $imageAuroraData->url                     = 'https://'.$params['object']->store->url.'/wi.php?id='.$imageAuroraData->{'Image Key'};
+            $imageAuroraData->store_id                = $params['object']->store->id;
+            $imageAuroraData->foreign_id              = $imageAuroraData->{'Image Subject Key'};
+            $imageAuroraData->common_image_foreign_id = $imageAuroraData->{'Image Key'};
+            $imageAuroraData->caption                 = $imageAuroraData->{'Image Subject Image Caption'};
+
+            $imageModelData[] = $imageAuroraData;
+
 
         }
 
@@ -88,48 +65,6 @@ trait ImageOps {
 
     }
 
-
-    function createImageFromAurora($imageAuroraData, $auroraImageFilename): array {
-
-
-        $imageData = $this->fillAuroraData(
-            [
-                'mime_type' => 'Image MIME Type',
-                'width'     => 'Image Width',
-                'height'    => 'Image Height',
-
-
-            ], $imageAuroraData
-        );
-
-
-
-
-        $image = (new Image)->updateOrCreate(
-            [
-                'foreign_id' => $imageAuroraData->{'Image Key'},
-                'store_id'   => $this->owners['store']->id
-            ], [
-                'created_at' => $imageAuroraData->{'Image Creation Date'},
-                'data'       => $imageData
-            ]
-        );
-
-        if (!$image->communal_image_id) {
-            $image->saveImage($auroraImageFilename);
-
-        }
-
-        return [
-            'image_id' => $image->id,
-            'scope'    => (isset($imageAuroraData->{'Image Subject Object Image Scope'}) ? $imageAuroraData->{'Image Subject Object Image Scope'} : ''),
-            'data'     => [
-                'filename' => $auroraImageFilename['filename']
-            ]
-        ];
-
-
-    }
 
     function syncImages($model, $imagesModelData, $get_scope) {
 
@@ -145,26 +80,37 @@ trait ImageOps {
         foreach ($imagesModelData as $imageModelData) {
 
 
-            $scope = $get_scope($imageModelData['scope']);
+            $scope = $get_scope($imageModelData->{'Image Subject Object Image Scope'});
+
+
+            $data = ['common_image_foreign_id' => $imageModelData->common_image_foreign_id];
+
+            if ($imageModelData->caption) {
+                $data['caption'] = $imageModelData->caption;
+            }
 
             $imageModel          = (new ImageModel)->updateOrCreate(
                 [
                     'imageable_type' => $model->getMorphClass(),
                     'imageable_id'   => $model->id,
                     'scope'          => $scope,
-                    'image_id'       => $imageModelData['image_id'],
+                    'image_id'       => $imageModelData->image_id,
 
                 ], [
-                    'data'       => $imageModelData['data'],
-                    'precedence' => $precedence
+                    'data'       => $data,
+                    'precedence' => $precedence,
+                    'url'        => $imageModelData->url,
+                    'foreign_id' => $imageModelData->foreign_id
                 ]
             );
+
             $new_imageModelIds[] = $imageModel->id;
             $model->images()->save($imageModel);
             $precedence--;
 
         }
         $model->images()->whereIn('id', array_diff($old_imageModelIds, $new_imageModelIds))->delete();
+
 
 
     }

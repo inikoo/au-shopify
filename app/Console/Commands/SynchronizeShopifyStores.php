@@ -53,22 +53,17 @@ class SynchronizeShopifyStores extends Command {
         }
 
         foreach ($users as $user) {
-            $user->updateStats();
-
 
             print $user->name."\n";
             $user->synchronizeStore();
             $user->synchronizeProducts();
             $user->synchronizePortfolio();
 
-            if($user->customer_id){
+            if ($user->customer_id) {
                 $user->setupShopifyStore();
             }
 
             $user->updateStats();
-
-
-
 
         }
 

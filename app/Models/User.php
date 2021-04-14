@@ -8,6 +8,7 @@
 namespace App\Models;
 
 use App\Helpers\SyncOps\Shopify\UserOps;
+use Arr;
 use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,7 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property array                             $data
  * @property array                             $settings
  * @property array                             $stats
+ * @property integer                           fulfillment_service_id
  * @property \App\Models\Customer              $customer
  * @property \App\Models\ShopifyProductVariant $shopify_product_variants
  * @mixin \Eloquent
@@ -94,8 +96,6 @@ class User extends Authenticatable implements IShopModel {
     }
 
 
-
-
     function updateStats() {
         $this->updateProductsStats();
         $this->updatePortfolioStats();
@@ -128,6 +128,7 @@ class User extends Authenticatable implements IShopModel {
             $stats, 'products.total', $shopifyStoreProductsLinkStatus['external'] + $shopifyStoreProductsLinkStatus['unknown'] + $shopifyStoreProductsLinkStatus['possible'] + $shopifyStoreProductsLinkStatus['linked'] + $shopifyStoreProductsLinkStatus['orphan']
 
         );
+
         data_set($stats, 'products.link_status', $shopifyStoreProductsLinkStatus);
 
         $this->stats = $stats;
@@ -165,7 +166,6 @@ class User extends Authenticatable implements IShopModel {
      */
     function setupShopifyStore() {
 
-       // dd($this->data);
         foreach (config('shopify-app.webhooks') as $webhookConfig) {
             $this->api()->rest(
                 'POST', '/admin/webhooks.json', [
@@ -178,30 +178,69 @@ class User extends Authenticatable implements IShopModel {
             );
         }
 
-        $request=$this->api()->rest(
+        /*
+
+*/
+
+        $callback_url=config('app.url').'/webhook/fulfillment-services';
+
+        $request = $this->api()->rest(
             'POST', '/admin/fulfillment_services.json', [
                       'fulfillment_service' => [
-                          'name'   => $this->customer->store->name,
-                          'callback_url'   => config('app.url').'/webhook/fulfillment-services',
-                          'inventory_management'=>true,
-                          'tracking_support'=>true,
-                          'requires_shipping_method'=>true,
-                          'format'=>'json'
-
-
+                          'name'                     => $this->customer->store->name,
+                          'callback_url'             => $callback_url,
+                          'inventory_management'     => true,
+                          'tracking_support'         => true,
+                          'requires_shipping_method' => true,
+                          'format'                   => 'json',
+                          'email'                    => Arr::get($this->customer->store->data, 'email')
 
                       ]
                   ]
         );
-        if (data_get($request, 'status')==201) {
-            $data = $this->data;
-            data_set($data, 'fulfillment_service.id', data_get($request, 'body.fulfillment_service.id'));
+
+        if (data_get($request, 'status') == 201) {
+            $this->fulfillment_service_id = data_get($request, 'body.fulfillment_service.id');
+            $data=$this->data;
             data_set($data, 'fulfillment_service.provider_id', data_get($request, 'body.fulfillment_service.provider_id'));
             data_set($data, 'fulfillment_service.location_id', data_get($request, 'body.fulfillment_service.location_id'));
+            data_set($data, 'fulfillment_service.handle', data_get($request, 'body.fulfillment_service.handle'));
             $this->data = $data;
             $this->save();
-        }
+        } else {
 
+            if (data_get($request, 'status') == 422) {
+
+                if (data_get($request, 'body.name.0') == 'has already been taken') {
+                    // try to find the fulfillment_service
+                    $request = $this->api()->rest(
+                        'get', '/admin/fulfillment_services.json',
+                    );
+
+
+                    foreach(data_get($request, 'body.fulfillment_services') as $fulfillment_service){
+
+
+                        if(data_get($fulfillment_service,'container.callback_url')==$callback_url){
+
+                            $this->fulfillment_service_id =data_get($fulfillment_service,'container.id');
+                            $data=$this->data;
+                            data_set($data, 'fulfillment_service.provider_id', data_get($fulfillment_service,'container.provider_id'));
+                            data_set($data, 'fulfillment_service.location_id', data_get($fulfillment_service,'container.location_id'));
+                            data_set($data, 'fulfillment_service.handle', data_get($fulfillment_service,'container.handle'));
+                            $this->data = $data;
+
+                            $this->save();
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+        }
 
 
     }
