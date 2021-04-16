@@ -1,6 +1,13 @@
-<div x-data="table('/shopify_products_variants')"
+<div x-data="table('shopify_products')"
      x-init="fetchData()"
-     class="flex flex-col">
+     class="flex flex-col"  @fetch-data="fetchData()" >
+
+    <div class="mb-6 flex">
+        <x-table.element label="{{__('Other supplier')}}" table="shopify_products"  element="unlinked"  open=$store.tables.shopify_products.open.unlinked   />
+        <x-table.element label="{{__('Ready to be linked')}}" table="shopify_products"  element="engaged"  open=$store.tables.shopify_products.open.engaged />
+        <x-table.element label="{{__('Linked')}}" table="shopify_products"  element="linked" open=$store.tables.shopify_products.open.linked  />
+    </div>
+
     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">

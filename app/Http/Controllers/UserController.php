@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\AccessCode;
+use Arr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -73,9 +74,31 @@ class UserController extends Controller {
         return response()->json($result);
     }
 
-    function fetchProducts(Request $request) {
+    function fetchPortfolioItems(Request $request) {
 
-        return $request->user()->portfolioItems()->paginate(20);
+
+        $request->validate(
+            [
+                'elements' => 'required|json',
+                'page'     => 'required|integer',
+            ]
+        );
+
+        $elements = json_decode($request->get('elements'), true);
+        $openElements = Arr::where(
+            $elements, function ($value) {
+            return $value;
+        }
+        );
+
+
+        if (count($elements) == count($openElements)) {
+            return $request->user()->portfolioItems()->paginate(20);
+        } else {
+            return $request->user()->portfolioItems()->whereIn('status', array_keys($openElements))->paginate(20);
+        }
+
+
 
     }
 

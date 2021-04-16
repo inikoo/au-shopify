@@ -170,11 +170,30 @@
             title: '{{$title()}}',
         });
 
-        window.Spruce.store('product_stats', {
-            shopify_products: '{{Arr::get($user->stats,'products.total','0')}}',
-            linked_products: '{{Arr::get($user->stats,'products.link_status.linked','xx')}}',
-            portfolio_items: '{{Arr::get($user->stats,'portfolio.total','0')}}',
+        window.Spruce.store('tables', {
+            shopify_products: {
+                'url': '/shopify_products_variants', open: {
+                    unlinked: true, engaged: true, linked: true,
+                }, qty: {
+                    total: '{{Arr::get($user->stats,'products.total','0')}}',
+                    unlinked: '{{Arr::get($user->stats,'products.link_status.unlinked','0')}}',
+                    engaged: '{{Arr::get($user->stats,'products.link_status.engaged','0')}}',
+                    linked: '{{Arr::get($user->stats,'products.link_status.linked','0')}}',
+                }
+
+
+            }, portfolio_items: {
+                'url': '/portfolio_items', open: {
+                    unlinked: true, linked: true,
+                }, qty: {
+                    total: '{{Arr::get($user->stats,'portfolio.total','0')}}',
+                    unlinked: '{{Arr::get($user->stats,'portfolio.link_status.unlinked','0')}}',
+                    linked: '{{Arr::get($user->stats,'portfolio.link_status.linked','0')}}',
+                }
+            }
+
         });
+
 
     </script>
 

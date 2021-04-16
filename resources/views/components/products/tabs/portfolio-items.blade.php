@@ -1,6 +1,12 @@
-<div x-data="table('/portfolio_items')"
+<div x-data="table('portfolio_items')"
      x-init="fetchData()"
-     class="flex flex-col">
+     class="flex flex-col"  @fetch-data="fetchData()">
+
+    <div class="mb-6 flex">
+        <x-table.element label="{{__('Unlinked')}}" table="portfolio_items"  element="unlinked"  open=$store.tables.portfolio_items.open.unlinked   />
+        <x-table.element label="{{__('Linked')}}" table="portfolio_items"  element="linked" open=$store.tables.portfolio_items.open.linked  />
+    </div>
+
     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">

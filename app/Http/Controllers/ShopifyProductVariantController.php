@@ -8,19 +8,34 @@
 namespace App\Http\Controllers;
 
 
+use Arr;
 use Illuminate\Http\Request;
 
 class ShopifyProductVariantController extends Controller {
 
     function fetch(Request $request) {
 
-        return $request->user()->shopify_product_variants()->paginate(20);
+        $request->validate(
+            [
+                'elements' => 'required|json',
+                'page'     => 'required|integer',
+            ]
+        );
+
+        $elements = json_decode($request->get('elements'), true);
+        $openElements = Arr::where(
+            $elements, function ($value) {
+            return $value;
+        }
+        );
+
+
+        if (count($elements) == count($openElements)) {
+            return $request->user()->shopifyProductVariants()->paginate(20);
+        } else {
+            return $request->user()->shopifyProductVariants()->whereIn('link_status', array_keys($openElements))->paginate(20);
+        }
 
     }
 
-    function fetchLinked(Request $request) {
-
-        return $request->user()->shopify_product_variants()->paginate(20);
-
-    }
 }

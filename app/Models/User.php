@@ -28,13 +28,13 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property string                            $state
  * @property integer                           $number_shopify_products
  * @property integer                           $number_shopify_variants
- * @property integer                           $number_linked_shopify_variants
  * @property array                             $data
  * @property array                             $settings
  * @property array                             $stats
  * @property integer                           fulfillment_service_id
  * @property \App\Models\Customer              $customer
- * @property \App\Models\ShopifyProductVariant $shopify_product_variants
+ * @property \App\Models\ShopifyProductVariant $shopifyProductVariants
+ * @property \App\Models\UserPortfolioItem     portfolioItems
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements IShopModel {
@@ -87,7 +87,7 @@ class User extends Authenticatable implements IShopModel {
         return $this->hasMany('App\Models\ShopifyProduct');
     }
 
-    public function shopify_product_variants(): HasManyThrough {
+    public function shopifyProductVariants(): HasManyThrough {
         return $this->hasManyThrough(ShopifyProductVariant::class, ShopifyProduct::class);
     }
 
@@ -108,11 +108,11 @@ class User extends Authenticatable implements IShopModel {
 
 
         $shopifyStoreProductsLinkStatus = [
-            'external' => 0,
-            'unknown'  => 0,
-            'possible' => 0,
+
+
+            'unlinked' => 0,
+            'engaged'  => 0,
             'linked'   => 0,
-            'orphan'   => 0,
         ];
 
         $results = DB::table('shopify_product_variants')->select('shopify_product_variants.link_status', DB::raw('count(*) as num'))->leftJoin('shopify_products', 'shopify_product_variants.shopify_product_id', '=', 'shopify_products.id')->where(
@@ -125,11 +125,12 @@ class User extends Authenticatable implements IShopModel {
         }
 
         data_set(
-            $stats, 'products.total', $shopifyStoreProductsLinkStatus['external'] + $shopifyStoreProductsLinkStatus['unknown'] + $shopifyStoreProductsLinkStatus['possible'] + $shopifyStoreProductsLinkStatus['linked'] + $shopifyStoreProductsLinkStatus['orphan']
+            $stats, 'products.total', $shopifyStoreProductsLinkStatus['unlinked'] + $shopifyStoreProductsLinkStatus['engaged'] + $shopifyStoreProductsLinkStatus['linked']
 
         );
 
         data_set($stats, 'products.link_status', $shopifyStoreProductsLinkStatus);
+
 
         $this->stats = $stats;
         $this->save();
@@ -182,7 +183,7 @@ class User extends Authenticatable implements IShopModel {
 
 */
 
-        $callback_url=config('app.url').'/webhook/fulfillment-services';
+        $callback_url = config('app.url').'/webhook/fulfillment-services';
 
         $request = $this->api()->rest(
             'POST', '/admin/fulfillment_services.json', [
@@ -201,7 +202,7 @@ class User extends Authenticatable implements IShopModel {
 
         if (data_get($request, 'status') == 201) {
             $this->fulfillment_service_id = data_get($request, 'body.fulfillment_service.id');
-            $data=$this->data;
+            $data                         = $this->data;
             data_set($data, 'fulfillment_service.provider_id', data_get($request, 'body.fulfillment_service.provider_id'));
             data_set($data, 'fulfillment_service.location_id', data_get($request, 'body.fulfillment_service.location_id'));
             data_set($data, 'fulfillment_service.handle', data_get($request, 'body.fulfillment_service.handle'));
@@ -218,16 +219,16 @@ class User extends Authenticatable implements IShopModel {
                     );
 
 
-                    foreach(data_get($request, 'body.fulfillment_services') as $fulfillment_service){
+                    foreach (data_get($request, 'body.fulfillment_services') as $fulfillment_service) {
 
 
-                        if(data_get($fulfillment_service,'container.callback_url')==$callback_url){
+                        if (data_get($fulfillment_service, 'container.callback_url') == $callback_url) {
 
-                            $this->fulfillment_service_id =data_get($fulfillment_service,'container.id');
-                            $data=$this->data;
-                            data_set($data, 'fulfillment_service.provider_id', data_get($fulfillment_service,'container.provider_id'));
-                            data_set($data, 'fulfillment_service.location_id', data_get($fulfillment_service,'container.location_id'));
-                            data_set($data, 'fulfillment_service.handle', data_get($fulfillment_service,'container.handle'));
+                            $this->fulfillment_service_id = data_get($fulfillment_service, 'container.id');
+                            $data                         = $this->data;
+                            data_set($data, 'fulfillment_service.provider_id', data_get($fulfillment_service, 'container.provider_id'));
+                            data_set($data, 'fulfillment_service.location_id', data_get($fulfillment_service, 'container.location_id'));
+                            data_set($data, 'fulfillment_service.handle', data_get($fulfillment_service, 'container.handle'));
                             $this->data = $data;
 
                             $this->save();

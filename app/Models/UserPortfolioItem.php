@@ -171,8 +171,9 @@ class UserPortfolioItem extends Model {
             );
             $this->shopify_product_variant_id = $variant->id;
             $this->status                     = 'linked';
-
             $this->save();
+
+
             $this->user->updateStats();
             $result->formatted_status = $this->formatted_status;
             $result->action           = $this->action;
