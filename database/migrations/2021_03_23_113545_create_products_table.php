@@ -110,7 +110,7 @@ class CreateProductsTable extends Migration {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('portfolio_item_id')->constrained();
             $table->foreignId('product_id')->nullable()->constrained();
-            $table->string('code')->nullable();
+            $table->string('code')->nullable()->collation('case_insensitive');
             $table->string('name')->nullable();
             $table->string('status')->default('unlinked')->index();
             $table->jsonb('data');

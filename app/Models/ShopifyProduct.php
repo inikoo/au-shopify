@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property integer                           $id
+ * @property string                            $title
  * @property \App\Models\User                  $user
  * @property \App\Models\ShopifyProductVariant variants
  * @mixin \Eloquent

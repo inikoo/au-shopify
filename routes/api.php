@@ -26,7 +26,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:api')->any('/register', [CustomerController::class, 'registerCustomer']);
-
 Route::middleware('auth:api')->post('/portfolio_item/{foreign_id}', [PortfolioItemController::class, 'update']);
 Route::middleware('auth:api')->delete('/portfolio_item/{foreign_id}', [PortfolioItemController::class, 'delete']);
 Route::middleware('auth:api')->post('/customer/{customer_foreign_id}/portfolio_item/{portfolio_item_foreign_id}', [PortfolioItemController::class, 'create']);

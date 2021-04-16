@@ -53,19 +53,10 @@ Route::get(
                        ]
 )->middleware(['auth.shopify']);
 
-
-
-Route::get(
-    '/linked_products', [
-                           ShopifyProductVariantController::class,
-                           'fetchLinked'
-                       ]
-)->middleware(['auth.shopify']);
-
 Route::get(
     '/portfolio_items', [
                           UserController::class,
-                           'fetchProducts'
+                           'fetchPortfolioItems'
                        ]
 )->middleware(['auth.shopify']);
 

@@ -36,8 +36,6 @@ trait ShopifyProductOps {
                 $title=$this->title;
             }
 
-            //print_r($variantData);
-
             $variant = $this->variants()->updateOrCreate(
                 [
                     'id' => Arr::pull($variantData, 'id'),
@@ -49,14 +47,11 @@ trait ShopifyProductOps {
                     'fulfillment_service'  => Arr::pull($variantData, 'fulfillment_service'),
                     'inventory_management' => Arr::pull($variantData, 'inventory_management'),
                     'barcode'              => Arr::pull($variantData, 'barcode'),
-                    'data'                 => [],
+
                 ]
             );
+            $variant->updateLinkStatus();
 
-            if ($variant->wasRecentlyCreated) {
-                $variant->link_status = (!$this->user->customer_id ? 'unknown' : 'external');
-                $variant->save();
-            }
 
 
         }

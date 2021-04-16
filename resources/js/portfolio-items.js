@@ -33,3 +33,32 @@ window.createShopifyProduct = function (id) {
 
 }
 
+window.linkShopifyProduct = function (id) {
+
+    return {
+        id:id,
+        isLoading:false,
+        submitAction($dispatch,id=this.id) {
+            this.isLoading = true;
+            fetch('/shopify_products/create?user_portfolio_item_id='+id)
+                .then((res) => res.json())
+                .then((res) => {
+
+                    if(res.success){
+
+                        document.getElementById("portfolio_item_"+id).getElementsByClassName("formatted_status")[0].innerHTML =res['formatted_status'];
+                        document.getElementById("portfolio_item_"+id).getElementsByClassName("action")[0].innerHTML =res['action'];
+                        this.$store.product_stats.portfolio_items=res['portfolio_items'];
+                        this.$store.product_stats.linked_products=res['linked_products'];
+                        this.$store.product_stats.shopify_products=res['shopify_products'];
+
+                    }
+
+
+                });
+        },
+    };
+
+
+}
+
