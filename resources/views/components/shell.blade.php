@@ -171,8 +171,10 @@
         });
 
         window.Spruce.store('tables', {
+
             shopify_products: {
-                'url': '/shopify_products_variants', open: {
+                'url': '/shopify_products_variants',
+                open: {
                     unlinked: true, engaged: true, linked: true,
                 }, qty: {
                     total: '{{Arr::get($user->stats,'products.total','0')}}',
@@ -182,7 +184,8 @@
                 }
 
 
-            }, portfolio_items: {
+            },
+            portfolio_items: {
                 'url': '/portfolio_items', open: {
                     unlinked: true, linked: true,
                 }, qty: {

@@ -9,14 +9,15 @@ window.table = function (tableId) {
     return {
         selectedOption: "",
         searchValue: '',
-        page: 1, limit: 10, from: 0, to: 0, total: 0, items: null, isLoading: false, previousPage: 1, nextPage: null, lastPage: 0,
+        page: 1, limit: 20, from: 0, to: 0, total: 0, items: null, isLoading: false, previousPage: 1, nextPage: null, lastPage: 0,
 
-        fetchData(page = this.page) {
+        fetchData(page = this.page,limit = this.limit) {
             this.page = page
             this.isLoading = true;
             const url=this.$store.tables[tableId].url+'?'+ new URLSearchParams({
                 elements: JSON.stringify(this.$store.tables[tableId].open),
-                page: page
+                page: page,
+                limit:limit
             })
             fetch(url)
                 .then((res) => res.json())
@@ -25,6 +26,9 @@ window.table = function (tableId) {
                     console.log(res)
 
                     this.isLoading = false;
+
+
+
 
                     //this.previousPage = this.page === 1 ? this.previousPage : this.page - 1
                     //this.nextPage = this.page + 1
