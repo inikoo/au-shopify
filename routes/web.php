@@ -42,21 +42,21 @@ Route::post(
 
 Route::get(
     '/shopify_products_variants', [
-                           ShopifyProductVariantController::class,
-                           'fetch'
-                       ]
+                                    ShopifyProductVariantController::class,
+                                    'fetch'
+                                ]
 )->middleware(['auth.shopify']);
 Route::get(
     '/shopify_products/create', [
-                           ShopifyProductController::class,
-                           'create'
-                       ]
+                                  ShopifyProductController::class,
+                                  'create'
+                              ]
 )->middleware(['auth.shopify']);
 
 Route::get(
     '/portfolio_items', [
                           UserController::class,
-                           'fetchPortfolioItems'
-                       ]
+                          'fetchPortfolioItems'
+                      ]
 )->middleware(['auth.shopify']);
 

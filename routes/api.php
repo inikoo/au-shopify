@@ -7,6 +7,7 @@
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PortfolioItemController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,15 +22,64 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware(
+    [
+        'auth:api',
+        'sanctum.abilities:is-shopify_product_app'
+    ]
+)->group(
+    function () {
+        Route::any(
+            '/products', [
+                           ProductController::class,
+                           'fetch'
+                       ]
+        );
+    }
+);
+
+Route::middleware(
+    [
+        'auth:api',
+        'sanctum.abilities:is-aurora'
+    ]
+)->group(
+    function () {
+
+        Route::any(
+            '/register', [
+            CustomerController::class,
+            'registerCustomer'
+        ]
+        );
+        Route::post(
+            '/portfolio_item/{foreign_id}', [
+            PortfolioItemController::class,
+            'update'
+        ]
+        );
+        Route::delete(
+            '/portfolio_item/{foreign_id}', [
+            PortfolioItemController::class,
+            'delete'
+        ]
+        );
+        Route::post(
+            '/customer/{customer_foreign_id}/portfolio_item/{portfolio_item_foreign_id}', [
+            PortfolioItemController::class,
+            'create'
+        ]
+        );
+
+
+    }
+);
+
+Route::get(
+    '/user', function (Request $request) {
     return $request->user();
-});
-
-Route::middleware('auth:api')->any('/register', [CustomerController::class, 'registerCustomer']);
-Route::middleware('auth:api')->post('/portfolio_item/{foreign_id}', [PortfolioItemController::class, 'update']);
-Route::middleware('auth:api')->delete('/portfolio_item/{foreign_id}', [PortfolioItemController::class, 'delete']);
-Route::middleware('auth:api')->post('/customer/{customer_foreign_id}/portfolio_item/{portfolio_item_foreign_id}', [PortfolioItemController::class, 'create']);
-
+}
+)->middleware(['auth:api']);;
 
 
 

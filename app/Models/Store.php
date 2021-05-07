@@ -30,7 +30,7 @@ use stdClass;
 
  * @property array   $data
  * @property \App\Models\StoreEngine   storeEngine
- * @method static where(string $string, array|string|null $argument)
+ * @mixin \Eloquent
  */
 class Store extends Authenticatable {
     use HasApiTokens, HasFactory, Notifiable, HasSlug;
