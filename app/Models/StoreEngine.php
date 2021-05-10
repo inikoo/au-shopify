@@ -54,6 +54,16 @@ class StoreEngine extends Model {
         $this->engine->synchronizeProducts();
     }
 
+    public function synchronizeCollections($store, $bar) {
+        $this->engine->owners  = [
+            'storeEngine' => $this,
+            'store'       => $store
+        ];
+        $this->engine->showBar = $bar;
+
+        $this->engine->synchronizeCollections();
+    }
+
     public function synchronizeStore($foreignStoreId) {
         return $this->engine->synchronizeStore($this, $foreignStoreId);
     }

@@ -55,6 +55,7 @@ class SynchronizeStores extends Command {
             $store->storeEngine->setDatabase();
             $store->storeEngine->synchronizeStore($store->foreign_id);
             $store->synchronizeProducts($this->output);
+            $store->synchronizeCollections($this->output);
 
         }
 

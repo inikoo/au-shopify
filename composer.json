@@ -21,6 +21,7 @@
         "laravel/tinker": "^2.5",
         "osiset/laravel-shopify": "^16.0",
         "sentry/sentry-laravel": "^2.4",
+        "spatie/laravel-query-builder": "^3.3",
         "spatie/laravel-sluggable": "^2.6"
     },
     "require-dev": {

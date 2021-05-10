@@ -61,11 +61,15 @@ class Store extends Authenticatable {
     }
 
     public function customers(): HasMany {
-        return $this->hasMany('App\Models\Customer');
+        return $this->hasMany(Customer::class);
     }
 
     public function products(): HasMany {
-        return $this->hasMany('App\Models\Product');
+        return $this->hasMany(Product::class);
+    }
+
+    public function collections(): HasMany {
+        return $this->hasMany(Collection::class);
     }
 
     public function storeEngine(): BelongsTo {
@@ -75,6 +79,10 @@ class Store extends Authenticatable {
     public function synchronizeProducts($bar=false) {
         $this->storeEngine->synchronizeProducts($this,$bar);
     }
+    public function synchronizeCollections($bar=false) {
+        $this->storeEngine->synchronizeCollections($this,$bar);
+    }
+
 
     public function registerCustomer($data): stdClass {
         return $this->storeEngine->registerCustomer($this,$data);

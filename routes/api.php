@@ -29,10 +29,16 @@ Route::middleware(
     ]
 )->group(
     function () {
-        Route::any(
+        Route::get(
             '/products', [
                            ProductController::class,
-                           'fetch'
+                           'fetchProducts'
+                       ]
+        );
+        Route::get(
+            '/product/{id}', [
+                           ProductController::class,
+                           'fetchProduct'
                        ]
         );
     }

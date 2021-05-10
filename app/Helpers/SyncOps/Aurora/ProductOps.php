@@ -13,8 +13,8 @@ trait ProductOps {
 
     public function synchronizeProducts() {
 
-        $store=$this->owners['store'];
-        $bar=false;
+        $store = $this->owners['store'];
+        $bar   = false;
 
         if ($this->showBar) {
             $sql = "count(*) as num from `Product Dimension` where `Product Store Key`=?";
@@ -87,26 +87,20 @@ trait ProductOps {
             $this->synchronizeProductImages($product);
 
 
-            $data=$product->data;
-            data_set($data,'body_html',$foreignProduct->{'Product Published Webpage Description'});
-            data_set($data,'grams',$foreignProduct->{'Product Unit Weight'});
-            data_set($data,'rrp',$foreignProduct->{'Product RRP'} / $units);
-            data_set($data,'barcode',$foreignProduct->{'Product Barcode Number'});
+            $data = $product->data;
+            data_set($data, 'body_html', $foreignProduct->{'Product Published Webpage Description'});
+            data_set($data, 'grams', $foreignProduct->{'Product Unit Weight'});
+            data_set($data, 'rrp', $foreignProduct->{'Product RRP'} / $units);
+            data_set($data, 'barcode', $foreignProduct->{'Product Barcode Number'});
 
 
-
-
-
-            $product->data=$data;
+            $product->data = $data;
             $product->save();
-
-
 
 
             if ($bar) {
                 $bar->advance();
             }
-
 
 
             $sql = "`Product Dimension` set `Product Shopify Key`=? where `Product ID`=?";
@@ -136,28 +130,103 @@ trait ProductOps {
         );
     }
 
-    private function synchronizeProductImages($product){
+    private function synchronizeProductImages($product) {
 
 
         $imagesModelData = $this->getAuroraImagesData(
             [
-                'objectType'     => 'Product',
-                'object' => $product,
+                'objectType' => 'Product',
+                'object'     => $product,
 
             ]
         );
 
 
-        $this->syncImages($product,$imagesModelData, function ($_scope){
+        $this->syncImages(
+            $product, $imagesModelData, function ($_scope) {
             $scope = 'marketing';
-            if ($_scope== '') {
+            if ($_scope == '') {
                 $scope = 'marketing';
             }
+
             return $scope;
-        });
+        }
+        );
+
+
+    }
+
+    public function synchronizeCollections() {
+
+        $store = $this->owners['store'];
+        $bar   = false;
+
+        if ($this->showBar) {
+            $sql = "count(*) as num from `Category Dimension` where `Category Store Key`=? and `Category Subject`='Product' and`Category Scope`='Product' and `Category Branch Type`='Head' ";
+
+            $collectionsCount = DB::connection('aurora')->select("select $sql ", [$store->foreign_id])[0];
+
+
+            $bar = $this->showBar->createProgressBar($collectionsCount->num);
+            $bar->setFormat('debug');
+        }
+
+        $sql = " * from `Category Dimension` where `Category Store Key`=? and `Category Subject`='Product' and`Category Scope`='Product' and `Category Branch Type`='Head'";
+        foreach (DB::connection('aurora')->select("select $sql", [$store->foreign_id]) as $foreignCollection) {
+
+            $collection = $this->createCollection(
+                $store, $foreignCollection->{'Category Key'}, [
+                          'name' => $foreignCollection->{'Category Label'},
+                          'code' => $foreignCollection->{'Category Code'},
+                      ]
+
+            );
+
+            $sql = "`Category Dimension` set `Category Shopify Key`=? where `Category Key`=?";
+            DB::connection('aurora')->statement(
+                "update $sql", [
+                                 $collection->id,
+                                 $foreignCollection->{'Category Key'}
+                             ]
+            );
+
+            $collectionProducts=[];
+
+            $sql = " `Product Shopify Key` from `Category Bridge` left join `Product Dimension` on (`Product ID`=`Subject Key`) where `Category Key`=? and `Product Shopify Key` is not null ";
+            foreach (DB::connection('aurora')->select("select $sql", [$foreignCollection->{'Category Key'}]) as $row) {
+                $collectionProducts[]=$row->{'Product Shopify Key'};
+            }
+            $collection->products()->sync($collectionProducts);
+
+
+            $collection->loadCount('products');
+            $collection->products_number=$collection->products_count;
+            $collection->save();
 
 
 
+
+
+            if ($bar) {
+                $bar->advance();
+            }
+
+
+        }
+
+        if ($bar) {
+            $bar->finish();
+            print "\n";
+        }
+
+    }
+
+    private function createCollection($store, $foreignID, $data) {
+        return $store->collections()->updateOrCreate(
+            [
+                'foreign_id' => $foreignID,
+            ], $data
+        );
     }
 
 }
