@@ -19,7 +19,7 @@ class CreateCustomersTable extends Migration
             $table->string('slug')->unique();
             $table->foreignId('store_id')->constrained();
             $table->unsignedMediumInteger('foreign_id')->index();
-            $table->string('name')->index();
+            $table->string('name')->collation('case_insensitive')->index();
             $table->decimal('balance',16)->index();
 
 

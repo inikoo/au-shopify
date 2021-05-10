@@ -34,7 +34,7 @@ class CreateProductsTable extends Migration {
             $table->id();
             $table->unsignedBigInteger('image_id');
             $table->foreign('image_id')->references('id')->on('images');
-            $table->string('url');
+            $table->string('url')->collation('case_insensitive');
             $table->string('imageable_type')->nullable()->index();
             $table->unsignedBigInteger('imageable_id')->nullable()->index();
 
@@ -69,11 +69,11 @@ class CreateProductsTable extends Migration {
             $table->foreignId('store_id')->constrained();
             $table->unsignedInteger('foreign_id')->index();
             $table->string('slug')->nullable()->index();
-            $table->string('code')->index();
+            $table->string('code')->collation('case_insensitive')->index();
             $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
-            $table->text('name')->nullable();
-            $table->text('description')->nullable();
+            $table->text('name')->collation('case_insensitive')->nullable();
+            $table->text('description')->collation('case_insensitive')->nullable();
             $table->decimal('unit_price');
             $table->unsignedMediumInteger('units');
             $table->unsignedMediumInteger('available')->default(0)->nullable();
@@ -111,7 +111,7 @@ class CreateProductsTable extends Migration {
             $table->foreignId('portfolio_item_id')->constrained();
             $table->foreignId('product_id')->nullable()->constrained();
             $table->string('code')->nullable()->collation('case_insensitive');
-            $table->string('name')->nullable();
+            $table->string('name')->nullable()->collation('case_insensitive');
             $table->string('status')->default('unlinked')->index();
             $table->jsonb('data');
             $table->timestampsTz();

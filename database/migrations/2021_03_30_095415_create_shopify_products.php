@@ -16,7 +16,7 @@ class CreateShopifyProducts extends Migration {
             $table->unsignedBigInteger('id')->primary();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('status')->index();
-            $table->string('title')->index();
+            $table->string('title')->index()->collation('case_insensitive');
 
             $table->json('data');
             $table->timestampsTz();
@@ -33,7 +33,7 @@ class CreateShopifyProducts extends Migration {
             $table->unsignedBigInteger('user_portfolio_item_id')->nullable()->index();
             $table->foreign('user_portfolio_item_id')->references('id')->on('user_portfolio_items');
             $table->string('link_status')->default('unlinked')->index();
-            $table->string('title')->index();
+            $table->string('title')->collation('case_insensitive')->index();
             $table->string('fulfillment_service')->nullable()->index();
             $table->string('inventory_management')->nullable()->index();
             $table->string('sku')->index();

@@ -31,8 +31,8 @@ class CreateStoresTable extends Migration {
             'store_engines', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('name');
-            $table->string('url');
+            $table->string('name')->collation('case_insensitive');
+            $table->string('url')->collation('case_insensitive');
             $table->unsignedMediumInteger('foreign_id')->index();
 
             $table->unsignedSmallInteger('store_engine_id')->index()->nullable();
@@ -47,7 +47,7 @@ class CreateStoresTable extends Migration {
             'stores', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('name');
+            $table->string('name')->collation('case_insensitive');
             $table->string('url');
             $table->string('currency');
             $table->string('locale');
