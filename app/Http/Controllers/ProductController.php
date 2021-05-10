@@ -47,7 +47,7 @@ class ProductController extends Controller {
                 'code',
                 'name'
             ]
-        )->allowedSorts('id', 'code', 'unit_price', 'units', 'available', 'created_at', 'updated_at')->paginate($request->get('limit'));
+        )->allowedSorts('id', 'code', 'unit_price', 'units', 'available', 'created_at', 'updated_at')->allowedIncludes(['images'])->paginate($request->get('limit'));
 
     }
 
