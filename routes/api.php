@@ -5,6 +5,7 @@
  * Copyright (c) 2021. Aiku.io
  */
 
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PortfolioItemController;
 use App\Http\Controllers\ProductController;
@@ -39,6 +40,12 @@ Route::middleware(
             '/product/{id}', [
                            ProductController::class,
                            'fetchProduct'
+                       ]
+        );
+        Route::get(
+            '/collections', [
+                           CollectionController::class,
+                           'fetchCollections'
                        ]
         );
     }
