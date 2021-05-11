@@ -17,7 +17,8 @@ class CreateCollectionsTable extends Migration {
             $table->foreignId('store_id')->constrained();
             $table->string('slug')->nullable()->index();
             $table->string('code')->index()->collation('case_insensitive');
-            $table->text('name')->nullable();
+            $table->text('name')->collation('case_insensitive')->nullable();
+            $table->text('body_html')->collation('case_insensitive')->nullable();
             $table->unsignedMediumInteger('products_number')->default(0);
             $table->jsonb('data');
             $table->unsignedInteger('foreign_id')->index();

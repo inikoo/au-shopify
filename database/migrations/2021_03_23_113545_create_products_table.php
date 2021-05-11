@@ -73,7 +73,7 @@ class CreateProductsTable extends Migration {
             $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
             $table->text('name')->collation('case_insensitive')->nullable();
-            $table->text('description')->collation('case_insensitive')->nullable();
+            $table->text('body_html')->collation('case_insensitive')->nullable();
             $table->decimal('unit_price');
             $table->unsignedMediumInteger('units');
             $table->unsignedMediumInteger('available')->default(0)->nullable();

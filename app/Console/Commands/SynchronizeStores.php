@@ -42,24 +42,19 @@ class SynchronizeStores extends Command {
     public function handle(): int {
 
 
-        if ($this->argument('storeID')=='all') {
+        if ($this->argument('storeID') == 'all') {
             $stores = Store::all();
         } else {
-
             $stores = Store::where('id', $this->argument('storeID'))->get();
         }
 
         foreach ($stores as $store) {
-
             print $store->slug."\n";
             $store->storeEngine->setDatabase();
             $store->storeEngine->synchronizeStore($store->foreign_id);
             $store->synchronizeProducts($this->output);
             $store->synchronizeCollections($this->output);
-
         }
-
-
         return 0;
     }
 }
