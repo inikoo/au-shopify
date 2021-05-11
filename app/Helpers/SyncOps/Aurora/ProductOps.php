@@ -132,15 +132,12 @@ trait ProductOps {
 
     private function synchronizeProductImages($product) {
 
-
         $imagesModelData = $this->getAuroraImagesData(
             [
                 'objectType' => 'Product',
                 'object'     => $product,
-
             ]
         );
-
 
         $this->syncImages(
             $product, $imagesModelData, function ($_scope) {
@@ -152,7 +149,6 @@ trait ProductOps {
             return $scope;
         }
         );
-
 
     }
 
@@ -171,13 +167,17 @@ trait ProductOps {
             $bar->setFormat('debug');
         }
 
-        $sql = " * from `Category Dimension` where `Category Store Key`=? and `Category Subject`='Product' and`Category Scope`='Product' and `Category Branch Type`='Head'";
+        $sql = " C.`Category Key`,`Product Category Published Webpage Description`,`Category Label`,`Category Code`
+        from `Category Dimension` C left join `Product Category Dimension` PCD on (`Product Category Key`=`Category Key`)
+        where `Category Store Key`=? and `Category Subject`='Product' and`Category Scope`='Product' and `Category Branch Type`='Head'";
         foreach (DB::connection('aurora')->select("select $sql", [$store->foreign_id]) as $foreignCollection) {
 
             $collection = $this->createCollection(
                 $store, $foreignCollection->{'Category Key'}, [
-                          'name' => $foreignCollection->{'Category Label'},
-                          'code' => $foreignCollection->{'Category Code'},
+                          'name'      => $foreignCollection->{'Category Label'},
+                          'code'      => $foreignCollection->{'Category Code'},
+                          'body_html' => $foreignCollection->{'Product Category Published Webpage Description'},
+
                       ]
 
             );
@@ -190,21 +190,20 @@ trait ProductOps {
                              ]
             );
 
-            $collectionProducts=[];
+            $collectionProducts = [];
 
             $sql = " `Product Shopify Key` from `Category Bridge` left join `Product Dimension` on (`Product ID`=`Subject Key`) where `Category Key`=? and `Product Shopify Key` is not null ";
             foreach (DB::connection('aurora')->select("select $sql", [$foreignCollection->{'Category Key'}]) as $row) {
-                $collectionProducts[]=$row->{'Product Shopify Key'};
+                $collectionProducts[] = $row->{'Product Shopify Key'};
             }
             $collection->products()->sync($collectionProducts);
 
 
             $collection->loadCount('products');
-            $collection->products_number=$collection->products_count;
+            $collection->products_number = $collection->products_count;
             $collection->save();
 
-
-
+            $this->synchronizeCollectionImages($collection);
 
 
             if ($bar) {
@@ -220,6 +219,29 @@ trait ProductOps {
         }
 
     }
+
+    private function synchronizeCollectionImages($collection) {
+
+        $imagesModelData = $this->getAuroraImagesData(
+            [
+                'objectType' => 'Category',
+                'object'     => $collection,
+            ]
+        );
+
+        $this->syncImages(
+            $collection, $imagesModelData, function ($_scope) {
+            $scope = 'marketing';
+            if ($_scope == '') {
+                $scope = 'marketing';
+            }
+
+            return $scope;
+        }
+        );
+
+    }
+
 
     private function createCollection($store, $foreignID, $data) {
         return $store->collections()->updateOrCreate(

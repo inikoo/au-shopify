@@ -23,7 +23,7 @@ trait ImageOps {
             $limit = ' limit '.$params['limit'];
         }
 
-        $sql = "* from `Image Subject Bridge` B  left join  `Image Dimension` I on (`Image Subject Image Key`=`Image Key`) where  `Image Subject Object`=?  and `Image Subject Object Key`=?  ORDER BY FIELD(`Image Subject Is Principal`, 'Yes','No') $limit";
+        $sql = "* from `Image Subject Bridge` B  left join `Image Dimension` I on (`Image Subject Image Key`=`Image Key`) where  `Image Subject Object`=?  and `Image Subject Object Key`=?  ORDER BY FIELD(`Image Subject Is Principal`, 'Yes','No') $limit";
         foreach (
             DB::connection('aurora')->select(
                 "select $sql",
