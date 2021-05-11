@@ -7,9 +7,11 @@
 
 namespace App\Models;
 
+use App\Models\Helpers\ImageModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,6 +55,10 @@ class Collection extends Model {
 
     function products(): BelongsToMany {
         return $this->belongsToMany(Product::class)->withTimestamps();
+    }
+
+    public function images(): MorphMany {
+        return $this->morphMany(ImageModel::class, 'image_models', 'imageable_type', 'imageable_id');
     }
 
 }

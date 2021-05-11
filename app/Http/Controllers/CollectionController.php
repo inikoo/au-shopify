@@ -29,7 +29,7 @@ class CollectionController extends Controller {
         if ($request->get('code')) {
 
 
-            $response = QueryBuilder::for(Collection::where('store_id', $request->user()->id))->allowedIncludes(['products'])->where('code', $request->get('code'))->first();
+            $response = QueryBuilder::for(Collection::where('store_id', $request->user()->id))->allowedIncludes(['products','images'])->where('code', $request->get('code'))->first();
 
             if (!$response) {
                 return response()->json(['message' => 'Not Found.'], 404);
@@ -44,7 +44,7 @@ class CollectionController extends Controller {
                 'code',
                 'name'
             ]
-        )->allowedSorts('id', 'code', 'products_number', 'created_at', 'updated_at')->allowedIncludes(['products'])->paginate($request->get('limit'));
+        )->allowedSorts('id', 'code', 'products_number', 'created_at', 'updated_at')->allowedIncludes(['products','images'])->paginate($request->get('limit'));
 
     }
 
