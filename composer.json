@@ -44,10 +44,15 @@
         }
     },
     "autoload": {
+        "exclude-from-classmap": [
+            "vendor/spatie/laravel-query-builder/src/Filters/FiltersPartial.php"
+        ],
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Spatie\\": "app/Overrides/"
+
         }
     },
     "autoload-dev": {
@@ -69,4 +74,5 @@
             "@php artisan key:generate --ansi"
         ]
     }
+
 }
