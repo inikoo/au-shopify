@@ -52,23 +52,27 @@ class PortfolioItemController extends Controller {
     function create($customer_foreign_id, $portfolio_item_foreign_id): JsonResponse {
 
         $customer = Customer::firstWhere('foreign_id', $customer_foreign_id);
-        $customer->store->storeEngine->setDatabase();
-        $portfolioItem = $customer->synchronizePortfolioItem($portfolio_item_foreign_id);
-        $customer->updateNumberPortfolioProducts();
-        foreach ($customer->users as $user) {
-            $user->updatePortfolioStats();
-        }
+        if ($customer) {
+            $customer->store->storeEngine->setDatabase();
+            $portfolioItem = $customer->synchronizePortfolioItem($portfolio_item_foreign_id);
+            $customer->updateNumberPortfolioProducts();
+            foreach ($customer->users as $user) {
+                $user->updatePortfolioStats();
+            }
 
-        return response()->json(
-            [
-                'success' => true,
-                'msg'     => 'portfolio_item '.$portfolioItem->id.' synchronized'
-            ]
-        );
+            return response()->json(
+                [
+                    'success' => true,
+                    'msg'     => 'portfolio_item '.$portfolioItem->id.' synchronized'
+                ]
+            );
+        } else {
+            return response()->json(['message' => 'Customer Not Found.'], 404);
+        }
 
     }
 
-    function update(Request $request,$portfolio_item_foreign_id): JsonResponse {
+    function update(Request $request, $portfolio_item_foreign_id): JsonResponse {
 
         $request->validate(
             [
@@ -78,35 +82,33 @@ class PortfolioItemController extends Controller {
 
         $portfolioItem = PortfolioItem::firstWhere('foreign_id', $portfolio_item_foreign_id);
 
+        if ($portfolioItem) {
 
+            if ($request->exists('product_code')) {
 
-        if($request->exists('product_code')){
+                $data = $portfolioItem->data;
 
-            $data=$portfolioItem->data;
+                if ($request->get('product_code') != '') {
+                    data_set($data, 'product_code', $request->get('product_code'));
 
-           if($request->get('product_code')!=''){
-               data_set($data, 'product_code', $request->get('product_code'));
+                } else {
+                    Arr::forget($data, 'product_code');
+                }
 
-           }else{
-               Arr::forget($data, 'product_code');
-           }
+                $portfolioItem->data = $data;
+                $portfolioItem->save();
 
-            $portfolioItem->data=$data;
-            $portfolioItem->save();
+            }
 
+            return response()->json(
+                [
+                    'success' => true,
+                    'msg'     => 'portfolio_item '.$portfolioItem->id.' updated'
+                ]
+            );
+        } else {
+            return response()->json(['message' => 'PortfolioItem Not Found.'], 404);
         }
-
-        return response()->json(
-            [
-                'success' => true,
-                'msg'     => 'portfolio_item '.$portfolioItem->id.' updated'
-            ]
-        );
-
-
     }
-
-
-
 
 }
